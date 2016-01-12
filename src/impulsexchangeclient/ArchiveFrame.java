@@ -9,13 +9,18 @@ import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 public class ArchiveFrame extends javax.swing.JFrame {
 
-    public ArchiveFrame() throws IOException {
+    public ArchiveFrame() {
         initComponents();
         setLocationRelativeTo(null);
-        extractArchive();
+        try {
+            extractArchive();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Ошибка чтения архива (archive.bin). Код ошибки:\r\n" + ex.toString(), "ArchiveFrame.extractArchive()", JOptionPane.ERROR_MESSAGE);
+        }
         jArchiveList.setModel(archiveList);
         jDateList.setModel(dateList);
     }
@@ -50,12 +55,13 @@ public class ArchiveFrame extends javax.swing.JFrame {
     private String extractData(String line, String param) {
         Matcher m = p.matcher(line);
         if (m.matches()) {
-            if (param.equals("order")) {
-                return m.group(1);                          //номер заказа!
-            } else if (param.equals("date")) {
-                return m.group(2) + "     " + m.group(3);   //дата + время
-            } else {
-                return "Неверный параметр функции <extractData>";
+            switch (param) {
+                case "order":
+                    return m.group(1);                          //номер заказа!
+                case "date":
+                    return m.group(2) + "     " + m.group(3);   //дата + время
+                default:
+                    return "Неверный параметр функции <extractData>";
             }
         } else {
             return "Ошибка чтения строки: <" + line + ">";

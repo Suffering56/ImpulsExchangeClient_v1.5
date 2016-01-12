@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -58,9 +57,9 @@ public class DataExport extends Thread {
 
         } catch (MalformedURLException ex) {
             progressBar.setString("Ошибка загрузки");
-            JOptionPane.showMessageDialog(null, "Другая ошибка (FTP): " + ex.toString());
+            JOptionPane.showMessageDialog(null, "Другая ошибка (MalformedURLException): " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
 
-        } catch (InterruptedException | IOException ex) { //
+        } catch (InterruptedException | IOException ex) {
             String errorMsg;
             if (ex.toString().contains("FileNotFoundException")) {
                 errorMsg = "Файл обмена отсутствует, либо указан неверный к нему путь.";
@@ -74,7 +73,7 @@ public class DataExport extends Thread {
                 errorMsg = "Другая ошибка.";
             }
             progressBar.setString("Ошибка загрузки");
-            JOptionPane.showMessageDialog(null, errorMsg + " Ex: " + ex.toString());
+            JOptionPane.showMessageDialog(null, errorMsg + " Ex: " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -125,10 +124,10 @@ public class DataExport extends Thread {
 
             try {            //получаем существующие на FTP-сервере заказы
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                existingOrdersList = getExistingOrders(in);                    
+                existingOrdersList = getExistingOrders(in);
 
-            } catch (IOException ex) {
-            } finally {     //записываем новые заказы в orders.txt
+            } catch (IOException ex) {                                          //пропускаем исключение, в случае отсутствия файла orders.txt на сервере
+            } finally {                                                         //записываем новые заказы в orders.txt
                 urlConnection = ur.openConnection();
                 BufferedOutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
                 for (String tempList : existingOrdersList) {
@@ -143,7 +142,7 @@ public class DataExport extends Thread {
         }
     }
 
-    private void updateArchive() throws FileNotFoundException, IOException {
+    private void updateArchive() throws IOException {
         File archive = new File(System.getProperty("user.dir") + "\\archive.bin");
         if (!Files.exists(archive.toPath())) {
             Files.createFile(archive.toPath());

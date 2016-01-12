@@ -1,13 +1,10 @@
 package impulsexchangeclient;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 public class OptionsFrame extends javax.swing.JFrame {
-    
+
     public OptionsFrame(Options options) {
         initComponents();
         setLocationRelativeTo(null);
@@ -19,7 +16,7 @@ public class OptionsFrame extends javax.swing.JFrame {
         ftpLoginField.setText(options.getFtpLogin());
         ftpPassField.setText(options.getFtpPass());
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -233,33 +230,29 @@ public class OptionsFrame extends javax.swing.JFrame {
             options.setLocalFilePath(file.getPath());
             options.setSwndFileName(file.getName());
         }
-      
+
         options.setFtpAddress(ftpAddressField.getText());
         options.setFtpLogin(ftpLoginField.getText());
         options.setFtpPass(ftpPassField.getText());
-        
-        try {
-            options.setOptions();
-        } catch (IOException ex) {
-            Logger.getLogger(OptionsFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+        options.setOptions();
         this.dispose();
     }//GEN-LAST:event_saveBtnActionPerformed
 
     private void localFileChooseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_localFileChooseBtnActionPerformed
         this.setAlwaysOnTop(false);
-        JFileChooser chooser = new JFileChooser();                             
+        JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File(localFilePathField.getText()));
-        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {          
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             file = chooser.getSelectedFile();
             localFilePathField.setText(file.getPath());
             this.setAlwaysOnTop(true);
         }
     }//GEN-LAST:event_localFileChooseBtnActionPerformed
-    
+
     private final Options options;
     private File file = null;
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelBtn;
     private javax.swing.JTextField depNumberField;

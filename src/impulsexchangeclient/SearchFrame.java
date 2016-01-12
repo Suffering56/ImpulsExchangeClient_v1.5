@@ -9,14 +9,9 @@ import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 public class SearchFrame extends javax.swing.JFrame {
-
-    public SearchFrame() {
-        initComponents();
-        setLocationRelativeTo(null);
-        jSearchList.setModel(searchList);
-    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -87,46 +82,40 @@ public class SearchFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void doSearchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doSearchBtnActionPerformed
+    public SearchFrame() {
+        initComponents();
+        setLocationRelativeTo(null);
+        jSearchList.setModel(searchList);
+    }
+
+    private void doSearch() throws IOException {
         String archivePath = System.getProperty("user.dir") + "\\archive.bin";
         File archive = new File(archivePath);
         searchList.clear();
+
+        if (Files.exists(archive.toPath())) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(archive)));
+            String line;
+            while ((line = in.readLine()) != null) {
+                line = line.trim();
+                if (extractOrder(line).contains(orderField.getText())) {
+                    searchList.addElement(line);
+                }
+            }
+        } else {
+            Files.createFile(archive.toPath());
+        }
+
+        if (searchList.isEmpty()) {
+            searchList.addElement("По вашему запросу ничего не найдено");
+        }
         if (!orderField.getText().equals("")) {
             this.setTitle("Поиск по заказу: " + orderField.getText());
         } else {
             this.setTitle("Поиск по всем заказам");
         }
-
-        if (Files.exists(archive.toPath())) {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(archive)));
-                String line;
-
-                while ((line = in.readLine()) != null) {
-                    line = line.trim();
-                    if (extractOrder(line).contains(orderField.getText())) {
-                        searchList.addElement(line);
-                    }
-                }
-            } catch (IOException ex) {
-            }
-        } else {
-            try {
-                Files.createFile(archive.toPath());
-            } catch (IOException ex) {
-            }
-        }
-        if (searchList.isEmpty()) {
-            searchList.addElement("По вашему запросу ничего не найдено");
-        }
         orderField.setText("");
-    }//GEN-LAST:event_doSearchBtnActionPerformed
-
-    private void orderFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderFieldKeyPressed
-        if (evt.getKeyCode() == 10) {
-            doSearchBtn.doClick();
-        }
-    }//GEN-LAST:event_orderFieldKeyPressed
+    }
 
     private String extractOrder(String line) {
         Matcher m = p.matcher(line);
@@ -136,6 +125,20 @@ public class SearchFrame extends javax.swing.JFrame {
             return "Ошибка чтения строки: <" + line + ">";
         }
     }
+
+    private void doSearchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doSearchBtnActionPerformed
+        try {
+            doSearch();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Ошибка чтения архива (archive.bin). Код ошибки:\r\n" + ex.toString(), "SearchFrame.doSearch()", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_doSearchBtnActionPerformed
+
+    private void orderFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderFieldKeyPressed
+        if (evt.getKeyCode() == 10) {
+            doSearchBtn.doClick();
+        }
+    }//GEN-LAST:event_orderFieldKeyPressed
 
     private final Pattern p = Pattern.compile("\\d+/(\\d+)\\p{Space}+(\\d+.\\d+.\\d+)\\p{Space}(\\d+:\\d+:\\d+)");
     private final DefaultListModel searchList = new DefaultListModel();

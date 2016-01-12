@@ -1,22 +1,11 @@
 package impulsexchangeclient;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 public class MainFrame extends javax.swing.JFrame {
-
-    public MainFrame(Options options) {
-        this.options = options;
-        initComponents();
-        setLocationRelativeTo(null);                                            //позиционирование по центру экрана     
-        setTitle("Отдел № " + options.getDepartmentNumber());
-        ordersList.setModel(dm);                                                //устанавливаем значение по умолчанию для списка заказов
-        departmentLabel.setText(options.getDepartmentNumber() + "/");
-    }
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -33,13 +22,13 @@ public class MainFrame extends javax.swing.JFrame {
         departmentLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         mainMenu = new javax.swing.JMenu();
-        optionsCallBtn = new javax.swing.JMenuItem();
-        exitBtn = new javax.swing.JMenuItem();
+        optionsCallMenuBtn = new javax.swing.JMenuItem();
+        exitMenuBtn = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        archiveCallMenuBtn = new javax.swing.JMenuItem();
+        doSearchMenuBtn = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        getFAQMenuBtn = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Обмен");
@@ -129,53 +118,53 @@ public class MainFrame extends javax.swing.JFrame {
 
         mainMenu.setText("Главное меню");
 
-        optionsCallBtn.setText("Настройки");
-        optionsCallBtn.addActionListener(new java.awt.event.ActionListener() {
+        optionsCallMenuBtn.setText("Настройки");
+        optionsCallMenuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                optionsCallBtnActionPerformed(evt);
+                optionsCallMenuBtnActionPerformed(evt);
             }
         });
-        mainMenu.add(optionsCallBtn);
+        mainMenu.add(optionsCallMenuBtn);
 
-        exitBtn.setText("Выход");
-        exitBtn.addActionListener(new java.awt.event.ActionListener() {
+        exitMenuBtn.setText("Выход");
+        exitMenuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitBtnActionPerformed(evt);
+                exitMenuBtnActionPerformed(evt);
             }
         });
-        mainMenu.add(exitBtn);
+        mainMenu.add(exitMenuBtn);
 
         jMenuBar1.add(mainMenu);
 
         jMenu1.setText("Архив");
 
-        jMenuItem2.setText("Архив (последние 25 заказов)");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        archiveCallMenuBtn.setText("Архив (последние 25 заказов)");
+        archiveCallMenuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                archiveCallMenuBtnActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        jMenu1.add(archiveCallMenuBtn);
 
-        jMenuItem3.setText("Поиск по заказам");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        doSearchMenuBtn.setText("Поиск по заказам");
+        doSearchMenuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                doSearchMenuBtnActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem3);
+        jMenu1.add(doSearchMenuBtn);
 
         jMenuBar1.add(jMenu1);
 
         jMenu3.setText("Справка");
 
-        jMenuItem1.setText("Вызов справки");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        getFAQMenuBtn.setText("Вызов справки");
+        getFAQMenuBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                getFAQMenuBtnActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem1);
+        jMenu3.add(getFAQMenuBtn);
 
         jMenuBar1.add(jMenu3);
 
@@ -237,6 +226,15 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public MainFrame(Options options) {
+        this.options = options;
+        initComponents();
+        setLocationRelativeTo(null);                                            //позиционирование по центру экрана     
+        setTitle("Отдел № " + options.getDepartmentNumber());
+        ordersList.setModel(dm);                                                //устанавливаем значение по умолчанию для списка заказов
+        departmentLabel.setText(options.getDepartmentNumber() + "/");
+    }
+    
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
         String nz = orderNumber.getText().trim();
         nz = options.getDepartmentNumber() + "/" + nz;
@@ -267,74 +265,68 @@ public class MainFrame extends javax.swing.JFrame {
             try {
                 new DataExport(progressBar, dm, options).start();                  //Запуск второго потока для отправки файла на FTP
             } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка создания потока DataExport. Код ошибки:\r\n" + ex.toString(), "DataExport.start()", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(null, "Вы не добавили в список ни одного заказа!");
         }
     }//GEN-LAST:event_toExportBtnActionPerformed
 
-    private void optionsCallBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsCallBtnActionPerformed
-        OptionsFrame optFrame = new OptionsFrame(options);
-        optFrame.setVisible(true);
-    }//GEN-LAST:event_optionsCallBtnActionPerformed
-
-    private void exitBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitBtnActionPerformed
-        System.exit(0);
-    }//GEN-LAST:event_exitBtnActionPerformed
-
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         this.setTitle("Отдел № " + options.getDepartmentNumber());
         departmentLabel.setText(options.getDepartmentNumber() + "/");
     }//GEN-LAST:event_formWindowGainedFocus
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        try {
-            ArchiveFrame archiveFrame = new ArchiveFrame();
-            archiveFrame.setVisible(true);
-        } catch (IOException ex) {
-        }
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
-
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        SearchFrame searchFrame = new SearchFrame();
-        searchFrame.setVisible(true);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
-
     private void orderNumberKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderNumberKeyPressed
-        if  (evt.getKeyCode() == 10) {
+        if (evt.getKeyCode() == 10) {
             addOrderBtn.doClick();
         }
     }//GEN-LAST:event_orderNumberKeyPressed
 
     private void ordersListKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ordersListKeyPressed
-        if  ((evt.getKeyCode() == 127) || (evt.getKeyCode() == 110)) {
+        if ((evt.getKeyCode() == 127) || (evt.getKeyCode() == 110)) {
             removeOrderBtn.doClick();
         }
     }//GEN-LAST:event_ordersListKeyPressed
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        HelpFrame helpFrame = new HelpFrame();
-        helpFrame.setVisible(true);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
-    
+    private void optionsCallMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsCallMenuBtnActionPerformed
+        new OptionsFrame(options).setVisible(true);
+    }//GEN-LAST:event_optionsCallMenuBtnActionPerformed
+
+    private void archiveCallMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_archiveCallMenuBtnActionPerformed
+        new ArchiveFrame().setVisible(true);
+    }//GEN-LAST:event_archiveCallMenuBtnActionPerformed
+
+    private void doSearchMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doSearchMenuBtnActionPerformed
+        new SearchFrame().setVisible(true);
+    }//GEN-LAST:event_doSearchMenuBtnActionPerformed
+
+    private void getFAQMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getFAQMenuBtnActionPerformed
+        new HelpFrame().setVisible(true);
+    }//GEN-LAST:event_getFAQMenuBtnActionPerformed
+
+    private void exitMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuBtnActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_exitMenuBtnActionPerformed
+
     private final DefaultListModel dm = new DefaultListModel();
     private final Options options;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderBtn;
+    private javax.swing.JMenuItem archiveCallMenuBtn;
     private javax.swing.JLabel departmentLabel;
-    private javax.swing.JMenuItem exitBtn;
+    private javax.swing.JMenuItem doSearchMenuBtn;
+    private javax.swing.JMenuItem exitMenuBtn;
+    private javax.swing.JMenuItem getFAQMenuBtn;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JMenu mainMenu;
-    private javax.swing.JMenuItem optionsCallBtn;
+    private javax.swing.JMenuItem optionsCallMenuBtn;
     private javax.swing.JTextField orderNumber;
     private javax.swing.JList ordersList;
     public javax.swing.JProgressBar progressBar;

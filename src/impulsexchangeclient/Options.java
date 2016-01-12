@@ -6,13 +6,11 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 
 public class Options {
 
-    public Options() throws IOException {
-    }
-
-    public void setOptions() throws IOException {
+    public void setOptions() {
         String departmentNumberWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v departmentNumber /t REG_SZ /d " + departmentNumber + " /f";
         String localFilePathWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v localFilePath /t REG_SZ /d " + localFilePath + " /f";
         String swndFileNameWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v swndFileName /t REG_SZ /d " + swndFileName + " /f";
@@ -21,51 +19,59 @@ public class Options {
         String ftpPassWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v ftpPass /t REG_SZ /d " + ftpPass + " /f";
 
         String optionsWriteQuery[] = {departmentNumberWQuery, localFilePathWQuery, swndFileNameWQuery, ftpAddressWQuery,
-            ftpLoginWQuery, ftpPassWQuery};                               //Инициализация запросов на изменение реестра
+            ftpLoginWQuery, ftpPassWQuery};                                     //Инициализация запросов на изменение реестра
 
         for (String query : optionsWriteQuery) {
-            Process process = Runtime.getRuntime().exec(query);
-            while (process.isAlive()) {
+            Process process;
+            try {
+                process = Runtime.getRuntime().exec(query);                     
+                while (process.isAlive()) {}                                    //ждем пока процесс выполнит свою работу
+                process.destroy();                                              //уничтожаем процесс
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка записи реестра. Код ошибки:\r\n" + ex.toString(), "Options.setOptions()", JOptionPane.ERROR_MESSAGE);
             }
-            process.destroy();
         }
     }
 
-    public void getOptions() throws IOException {                         //Чтение настроек реестра
-        String dataOptionsQuery[] = {depNum, filePath, fileName,
-            address, login, password};                                    //Инициализация запросов к реестру
-        LinkedList<String> optionsList = new LinkedList();
-        int nullOptionsCounter = 0;
+    public void getOptions() {                                                  //Чтение настроек реестра
+        try {
+            String dataOptionsQuery[] = {depNum, filePath, fileName,
+                address, login, password};                                      //Инициализация запросов к реестру
+            LinkedList<String> optionsList = new LinkedList();
+            int nullOptionsCounter = 0;
 
-        for (String query : dataOptionsQuery) {
-            Process process = Runtime.getRuntime().exec(query);
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));     //Чтение ключей/значений реестра
-            String line;
-            String parseLine = "";
+            for (String query : dataOptionsQuery) {
+                Process process = Runtime.getRuntime().exec(query);
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()));       //Чтение ключей/значений реестра
+                String line;
+                String parseLine = "";
 
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("REG_SZ")) {                            //Извлечение нужной строки потока реестра
-                    parseLine = line.trim();                              //PS: там почему-то не в одной строке все хранится
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("REG_SZ")) {                              //Извлечение нужной строки потока реестра
+                        parseLine = line.trim();                                //PS: там почему-то не в одной строке все хранится
+                    }
+                }
+                reader.close();
+                process.destroy();
+
+                Matcher m = p.matcher(parseLine);
+                if (m.matches()) {
+                    optionsList.add(m.group(1));                               //Извлечение нужного значения ключа реестра...
+                } else {                                                       //... либо если ключ(значение) отсутствует/не соответствует шаблону...
+                    optionsList.add("");                                       //... извлечение пустого значения (для избежания ошибки)             
+                    nullOptionsCounter++;
                 }
             }
-            reader.close();
-            process.destroy();
 
-            Matcher m = p.matcher(parseLine);
-            if (m.matches()) {
-                optionsList.add(m.group(1));                               //Извлечение нужного значения ключа реестра...
-            } else {                                                       //... либо если ключ(значение) отсутствует/не соответствует шаблону...
-                optionsList.add("");                                       //... извлечение пустого значения (для избежания ошибки)             
-                nullOptionsCounter++;
+            if (nullOptionsCounter == 6) {
+                firstStart();                                                  //Загрузка значений по-умолчанию при первом запуске программы
+                setOptions();
+            } else {
+                importOptionsIntoProgramm(optionsList);                        //Импорт извлеченных параметров в класс Options
             }
-        }
-
-        if (nullOptionsCounter == 6) {
-            firstStart();                                                  //Загрузка значений по-умолчанию при первом запуске программы
-            setOptions();
-        } else {
-            importOptionsIntoProgramm(optionsList);                        //Импорт извлеченных параметров в класс Options
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Ошибка чтения реестра. Код ошибки:\r\n" + ex.toString(), "Options.getOptions()", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -143,7 +149,7 @@ public class Options {
     private String ftpAddress;
 
     private final Pattern p = Pattern.compile(
-            "\\w+\\p{Space}+REG_SZ\\p{Space}+(.+)");        //Шаблон для извлечения параметра ключа реестра
+            "\\w+\\p{Space}+REG_SZ\\p{Space}+(.+)");          //Шаблон для извлечения значений реестра
 
     private final String depNum = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v departmentNumber";
     private final String filePath = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v localFilePath";
