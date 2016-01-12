@@ -3,18 +3,17 @@ package impulsexchangeclient;
 import java.io.File;
 import javax.swing.JFileChooser;
 
-public class OptionsFrame extends javax.swing.JFrame {
+public class FrameOptions extends javax.swing.JFrame {
 
-    public OptionsFrame(Options options) {
+    public FrameOptions() {
         initComponents();
         setLocationRelativeTo(null);
         this.setAlwaysOnTop(true);
-        this.options = options;
-        depNumberField.setText(options.getDepartmentNumber());
-        localFilePathField.setText(options.getLocalFilePath());
-        ftpAddressField.setText(options.getFtpAddress());
-        ftpLoginField.setText(options.getFtpLogin());
-        ftpPassField.setText(options.getFtpPass());
+        depNumberField.setText(Options.getDepartmentNumber());
+        localFilePathField.setText(Options.getLocalFilePath());
+        ftpAddressField.setText(Options.getFtpAddress());
+        ftpLoginField.setText(Options.getFtpLogin());
+        ftpPassField.setText(Options.getFtpPass());
     }
 
     @SuppressWarnings("unchecked")
@@ -164,19 +163,18 @@ public class OptionsFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                            .addComponent(jLabel4)
-                            .addGap(18, 18, 18)
-                            .addComponent(ftpAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel2Layout.createSequentialGroup()
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel5)
-                                .addComponent(jLabel6))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(ftpLoginField, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
-                                .addComponent(ftpPassField)))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addComponent(ftpAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel6))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(ftpLoginField, javax.swing.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
+                            .addComponent(ftpPassField))))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -225,17 +223,17 @@ public class OptionsFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_cancelBtnActionPerformed
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
-        options.setDepartmentNumber(depNumberField.getText());
+        Options.setDepartmentNumber(depNumberField.getText());
         if (file != null) {
-            options.setLocalFilePath(file.getPath());
-            options.setSwndFileName(file.getName());
+            Options.setLocalFilePath(file.getPath());
+            Options.setSwndFileName(file.getName());
         }
 
-        options.setFtpAddress(ftpAddressField.getText());
-        options.setFtpLogin(ftpLoginField.getText());
-        options.setFtpPass(ftpPassField.getText());
+        Options.setFtpAddress(ftpAddressField.getText());
+        Options.setFtpLogin(ftpLoginField.getText());
+        Options.setFtpPass(ftpPassField.getText());
 
-        options.setOptions();
+        Options.setOptions();
         this.dispose();
     }//GEN-LAST:event_saveBtnActionPerformed
 
@@ -250,7 +248,6 @@ public class OptionsFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_localFileChooseBtnActionPerformed
 
-    private final Options options;
     private File file = null;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

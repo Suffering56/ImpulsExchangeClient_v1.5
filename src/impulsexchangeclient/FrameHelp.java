@@ -1,8 +1,8 @@
 package impulsexchangeclient;
 
-public class HelpFrame extends javax.swing.JFrame {
+public class FrameHelp extends javax.swing.JFrame {
 
-    public HelpFrame() {
+    public FrameHelp() {
         initComponents();
         setLocationRelativeTo(null);
     }

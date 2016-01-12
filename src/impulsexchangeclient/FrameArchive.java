@@ -11,9 +11,9 @@ import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
-public class ArchiveFrame extends javax.swing.JFrame {
+public class FrameArchive extends javax.swing.JFrame {
 
-    public ArchiveFrame() {
+    public FrameArchive() {
         initComponents();
         setLocationRelativeTo(null);
         try {

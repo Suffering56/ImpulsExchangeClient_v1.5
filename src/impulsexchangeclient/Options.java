@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 
 public class Options {
 
-    public void setOptions() {
+    public static void setOptions() {
         String departmentNumberWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v departmentNumber /t REG_SZ /d " + departmentNumber + " /f";
         String localFilePathWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v localFilePath /t REG_SZ /d " + localFilePath + " /f";
         String swndFileNameWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v swndFileName /t REG_SZ /d " + swndFileName + " /f";
@@ -33,7 +33,7 @@ public class Options {
         }
     }
 
-    public void getOptions() {                                                  //Чтение настроек реестра
+    public static void getOptions() {                                                  //Чтение настроек реестра
         try {
             String dataOptionsQuery[] = {depNum, filePath, fileName,
                 address, login, password};                                      //Инициализация запросов к реестру
@@ -75,7 +75,7 @@ public class Options {
         }
     }
 
-    private void importOptionsIntoProgramm(LinkedList<String> optionsList) {
+    private static void importOptionsIntoProgramm(LinkedList<String> optionsList) {
         departmentNumber = optionsList.get(0);
         localFilePath = optionsList.get(1);
         swndFileName = optionsList.get(2);
@@ -84,7 +84,7 @@ public class Options {
         ftpPass = optionsList.get(5);
     }
 
-    private void firstStart() {
+    private static void firstStart() {
         departmentNumber = "100";
         localFilePath = "c:\\swnd5.arc";
         swndFileName = "swnd5.arc";
@@ -93,68 +93,68 @@ public class Options {
         ftpPass = "im699000pass";
     }
 
-    public String getFtpLogin() {
+    public static String getFtpLogin() {
         return ftpLogin;
     }
 
-    public void setFtpLogin(String ftpLogin) {
-        this.ftpLogin = ftpLogin;
+    public static void setFtpLogin(String ftpLogin) {
+        Options.ftpLogin = ftpLogin;
     }
 
-    public String getFtpPass() {
+    public static String getFtpPass() {
         return ftpPass;
     }
 
-    public void setFtpPass(String ftpPass) {
-        this.ftpPass = ftpPass;
+    public static void setFtpPass(String ftpPass) {
+        Options.ftpPass = ftpPass;
     }
 
-    public String getFtpAddress() {
+    public static String getFtpAddress() {
         return ftpAddress;
     }
 
-    public void setFtpAddress(String ftpAddress) {
-        this.ftpAddress = ftpAddress;
+    public static void setFtpAddress(String ftpAddress) {
+        Options.ftpAddress = ftpAddress;
     }
 
-    public String getLocalFilePath() {
+    public static String getLocalFilePath() {
         return localFilePath;
     }
 
-    public void setLocalFilePath(String localFilePath) {
-        this.localFilePath = localFilePath;
+    public static void setLocalFilePath(String localFilePath) {
+        Options.localFilePath = localFilePath;
     }
 
-    public String getDepartmentNumber() {
+    public static String getDepartmentNumber() {
         return departmentNumber;
     }
 
-    public void setDepartmentNumber(String departmentNumber) {
-        this.departmentNumber = departmentNumber;
+    public static void setDepartmentNumber(String departmentNumber) {
+        Options.departmentNumber = departmentNumber;
     }
 
-    public String getSwndFileName() {
+    public static String getSwndFileName() {
         return swndFileName;
     }
 
-    public void setSwndFileName(String swndFileName) {
-        this.swndFileName = swndFileName;
+    public static void setSwndFileName(String swndFileName) {
+        Options.swndFileName = swndFileName;
     }
 
-    private String departmentNumber;
-    private String localFilePath;
-    private String swndFileName;
-    private String ftpLogin;
-    private String ftpPass;
-    private String ftpAddress;
+    private static String departmentNumber;
+    private static String localFilePath;
+    private static String swndFileName;
+    private static String ftpLogin;
+    private static String ftpPass;
+    private static String ftpAddress;
 
-    private final Pattern p = Pattern.compile(
+    private static final Pattern p = Pattern.compile(
             "\\w+\\p{Space}+REG_SZ\\p{Space}+(.+)");          //Шаблон для извлечения значений реестра
 
-    private final String depNum = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v departmentNumber";
-    private final String filePath = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v localFilePath";
-    private final String fileName = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v swndFileName";
-    private final String address = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpAddress";
-    private final String login = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpLogin";
-    private final String password = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpPass";
+    private static final String depNum = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v departmentNumber";
+    private static final String filePath = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v localFilePath";
+    private static final String fileName = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v swndFileName";
+    private static final String address = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpAddress";
+    private static final String login = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpLogin";
+    private static final String password = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpPass";
 }

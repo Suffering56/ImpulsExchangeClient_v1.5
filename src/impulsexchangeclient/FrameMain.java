@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
-public class MainFrame extends javax.swing.JFrame {
+public class FrameMain extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -14,7 +14,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        ordersList = new javax.swing.JList();
+        jOrdersList = new javax.swing.JList();
         removeOrderBtn = new javax.swing.JButton();
         toExportBtn = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
@@ -64,19 +64,19 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel3.setText("Введите № заказа:");
         jLabel3.setFocusable(false);
 
-        ordersList.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        ordersList.setModel(new javax.swing.AbstractListModel() {
+        jOrdersList.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jOrdersList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
-        ordersList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        ordersList.addKeyListener(new java.awt.event.KeyAdapter() {
+        jOrdersList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jOrdersList.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                ordersListKeyPressed(evt);
+                jOrdersListKeyPressed(evt);
             }
         });
-        jScrollPane2.setViewportView(ordersList);
+        jScrollPane2.setViewportView(jOrdersList);
 
         removeOrderBtn.setText("Убрать заказ из списка");
         removeOrderBtn.setFocusPainted(false);
@@ -226,23 +226,22 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public MainFrame(Options options) {
-        this.options = options;
+    public FrameMain() {
         initComponents();
         setLocationRelativeTo(null);                                            //позиционирование по центру экрана     
-        setTitle("Отдел № " + options.getDepartmentNumber());
-        ordersList.setModel(dm);                                                //устанавливаем значение по умолчанию для списка заказов
-        departmentLabel.setText(options.getDepartmentNumber() + "/");
+        setTitle("Отдел № " + Options.getDepartmentNumber());
+        jOrdersList.setModel(sentOrdersList);                                   //устанавливаем значение по умолчанию для списка заказов
+        departmentLabel.setText(Options.getDepartmentNumber() + "/");
     }
     
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
         String nz = orderNumber.getText().trim();
-        nz = options.getDepartmentNumber() + "/" + nz;
-        Pattern p = Pattern.compile(options.getDepartmentNumber() + "/\\d+");
+        nz = Options.getDepartmentNumber() + "/" + nz;
+        Pattern p = Pattern.compile(Options.getDepartmentNumber() + "/\\d+");
         Matcher m = p.matcher(nz);
-        if (m.matches()) {                                      //проверка на корректность заказа (только цифры - не менее одной)
-            if (!dm.contains(nz)) {                             //проверка на дублирование номера заказа
-                dm.addElement(nz);                              //добавить заказ в список
+        if (m.matches()) {                                                      //проверка на корректность заказа (только цифры - не менее одной)
+            if (!sentOrdersList.contains(nz)) {                                 //проверка на дублирование номера заказа
+                sentOrdersList.addElement(nz);                                  //добавить заказ в список
             } else {
                 JOptionPane.showMessageDialog(null, "Заказ №" + nz + " уже есть в списке!");
             }
@@ -253,17 +252,17 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_addOrderBtnActionPerformed
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed
-        if (ordersList.getSelectedIndex() != -1) {                              //Если заказ выбран
-            dm.remove(ordersList.getSelectedIndex());                           //Удалить из списка
+        if (jOrdersList.getSelectedIndex() != -1) {                             //Если заказ выбран
+            sentOrdersList.remove(jOrdersList.getSelectedIndex());              //Удалить из списка
         }
     }//GEN-LAST:event_removeOrderBtnActionPerformed
 
     private void toExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toExportBtnActionPerformed
-        if (!dm.isEmpty()) {
+        if (!sentOrdersList.isEmpty()) {
             progressBar.setString(null);
             progressBar.setValue(0);
             try {
-                new DataExport(progressBar, dm, options).start();                  //Запуск второго потока для отправки файла на FTP
+                new DataExport(progressBar, sentOrdersList).start();            //Запуск второго потока для отправки файла на FTP
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Ошибка создания потока DataExport. Код ошибки:\r\n" + ex.toString(), "DataExport.start()", JOptionPane.ERROR_MESSAGE);
             }
@@ -273,8 +272,8 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_toExportBtnActionPerformed
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
-        this.setTitle("Отдел № " + options.getDepartmentNumber());
-        departmentLabel.setText(options.getDepartmentNumber() + "/");
+        this.setTitle("Отдел № " + Options.getDepartmentNumber());
+        departmentLabel.setText(Options.getDepartmentNumber() + "/");
     }//GEN-LAST:event_formWindowGainedFocus
 
     private void orderNumberKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderNumberKeyPressed
@@ -283,34 +282,33 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_orderNumberKeyPressed
 
-    private void ordersListKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ordersListKeyPressed
+    private void jOrdersListKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jOrdersListKeyPressed
         if ((evt.getKeyCode() == 127) || (evt.getKeyCode() == 110)) {
             removeOrderBtn.doClick();
         }
-    }//GEN-LAST:event_ordersListKeyPressed
+    }//GEN-LAST:event_jOrdersListKeyPressed
 
     private void optionsCallMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsCallMenuBtnActionPerformed
-        new OptionsFrame(options).setVisible(true);
+        new FrameOptions().setVisible(true);
     }//GEN-LAST:event_optionsCallMenuBtnActionPerformed
 
     private void archiveCallMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_archiveCallMenuBtnActionPerformed
-        new ArchiveFrame().setVisible(true);
+        new FrameArchive().setVisible(true);
     }//GEN-LAST:event_archiveCallMenuBtnActionPerformed
 
     private void doSearchMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doSearchMenuBtnActionPerformed
-        new SearchFrame().setVisible(true);
+        new FrameSearch().setVisible(true);
     }//GEN-LAST:event_doSearchMenuBtnActionPerformed
 
     private void getFAQMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getFAQMenuBtnActionPerformed
-        new HelpFrame().setVisible(true);
+        new FrameHelp().setVisible(true);
     }//GEN-LAST:event_getFAQMenuBtnActionPerformed
 
     private void exitMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuBtnActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitMenuBtnActionPerformed
 
-    private final DefaultListModel dm = new DefaultListModel();
-    private final Options options;
+    private final DefaultListModel sentOrdersList = new DefaultListModel();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderBtn;
@@ -324,11 +322,11 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JList jOrdersList;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JMenu mainMenu;
     private javax.swing.JMenuItem optionsCallMenuBtn;
     private javax.swing.JTextField orderNumber;
-    private javax.swing.JList ordersList;
     public javax.swing.JProgressBar progressBar;
     private javax.swing.JButton removeOrderBtn;
     private javax.swing.JButton toExportBtn;

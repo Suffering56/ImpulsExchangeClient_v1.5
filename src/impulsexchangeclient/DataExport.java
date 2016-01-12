@@ -21,12 +21,11 @@ import org.apache.commons.net.ftp.FTPClient;
 
 public class DataExport extends Thread {
 
-    public DataExport(JProgressBar progressBar, DefaultListModel dm, Options options) {
+    public DataExport(JProgressBar progressBar, DefaultListModel dm) {
         this.progressBar = progressBar;
         this.dm = dm;
-        this.options = options;
         newOrdersList = cloneList(dm);
-        localFile = new File(options.getLocalFilePath());       //Полный путь к файлу (включая его название)
+        localFile = new File(Options.getLocalFilePath());       //Полный путь к файлу (включая его название)
     }
 
     @Override
@@ -48,7 +47,7 @@ public class DataExport extends Thread {
         } catch (InterruptedException | IOException ex) {
             String errorMsg;
             if (ex.toString().contains("FileNotFoundException")) {
-                errorMsg = "Файл " + options.getSwndFileName() + " отсутствует, либо указан неверный к нему путь. Проверьте настройки";
+                errorMsg = "Файл " + Options.getSwndFileName() + " отсутствует, либо указан неверный к нему путь. Проверьте настройки";
             } else if (ex.toString().contains("NoRouteToHostException")) {
                 errorMsg = "Ошибка соединения с интернетом.";
             } else if (ex.toString().contains("FtpLoginException")) {
@@ -65,19 +64,19 @@ public class DataExport extends Thread {
 
     private void directoryExistCheck() throws IOException {
         FTPClient ftpClient = new FTPClient();
-        ftpClient.connect(options.getFtpAddress());
-        ftpClient.login(options.getFtpLogin(), options.getFtpPass());
+        ftpClient.connect(Options.getFtpAddress());
+        ftpClient.login(Options.getFtpLogin(), Options.getFtpPass());
         ftpClient.enterLocalPassiveMode();
-        boolean exist = ftpClient.changeWorkingDirectory(options.getDepartmentNumber());
+        boolean exist = ftpClient.changeWorkingDirectory(Options.getDepartmentNumber());
         if (!exist) {
-            ftpClient.makeDirectory(options.getDepartmentNumber());
-            ftpClient.changeWorkingDirectory(options.getDepartmentNumber());
+            ftpClient.makeDirectory(Options.getDepartmentNumber());
+            ftpClient.changeWorkingDirectory(Options.getDepartmentNumber());
         }
     }
 
     private void uploadFile() throws MalformedURLException, IOException, InterruptedException {
-        URL ur = new URL("ftp://" + options.getFtpLogin() + ":" + options.getFtpPass() + "@" + options.getFtpAddress()
-                + ":/" + options.getDepartmentNumber() + "/" + options.getSwndFileName());
+        URL ur = new URL("ftp://" + Options.getFtpLogin() + ":" + Options.getFtpPass() + "@" + Options.getFtpAddress()
+                + ":/" + Options.getDepartmentNumber() + "/" + Options.getSwndFileName());
         URLConnection urlConnection = ur.openConnection();
 
         int line, progressValue;
@@ -103,8 +102,8 @@ public class DataExport extends Thread {
 
     private void uploadDetails() throws MalformedURLException, IOException {
         if (!newOrdersList.isEmpty()) {
-            URL ur = new URL("ftp://" + options.getFtpLogin() + ":" + options.getFtpPass() + "@" + options.getFtpAddress()
-                    + ":/" + options.getDepartmentNumber() + "/orders.txt");
+            URL ur = new URL("ftp://" + Options.getFtpLogin() + ":" + Options.getFtpPass() + "@" + Options.getFtpAddress()
+                    + ":/" + Options.getDepartmentNumber() + "/orders.txt");
             URLConnection urlConnection = ur.openConnection();
             LinkedList<String> existingOrdersList = new LinkedList();
 
@@ -171,7 +170,6 @@ public class DataExport extends Thread {
 
     private final JProgressBar progressBar;
     private final DefaultListModel dm;
-    private final Options options;
     private final File localFile;
     private final LinkedList<String> newOrdersList;
 }

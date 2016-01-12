@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
-public class SearchFrame extends javax.swing.JFrame {
+public class FrameSearch extends javax.swing.JFrame {
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -25,7 +25,6 @@ public class SearchFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Поиск");
-        setMaximumSize(new java.awt.Dimension(207, 300));
         setMinimumSize(new java.awt.Dimension(207, 300));
         setResizable(false);
         setSize(new java.awt.Dimension(207, 300));
@@ -82,7 +81,7 @@ public class SearchFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public SearchFrame() {
+    public FrameSearch() {
         initComponents();
         setLocationRelativeTo(null);
         jSearchList.setModel(searchList);
