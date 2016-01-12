@@ -260,8 +260,8 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void toExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toExportBtnActionPerformed
         if (!dm.isEmpty()) {
+            progressBar.setString(null);
             progressBar.setValue(0);
-            progressBar.setVisible(true);                                          //Включение прогресс бара
             try {
                 new DataExport(progressBar, dm, options).start();                  //Запуск второго потока для отправки файла на FTP
             } catch (Exception ex) {

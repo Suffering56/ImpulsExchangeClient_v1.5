@@ -25,27 +25,13 @@ public class DataExport extends Thread {
         this.progressBar = progressBar;
         this.dm = dm;
         this.options = options;
-
-        newOrdersList = getListClone(dm);
+        newOrdersList = cloneList(dm);
         localFile = new File(options.getLocalFilePath());       //Полный путь к файлу (включая его название)
-    }
-
-    private LinkedList getListClone(DefaultListModel dm) {
-        LinkedList<String> result = new LinkedList();
-        if (!dm.isEmpty()) {
-            for (int i = 0; i < dm.getSize(); i++) {
-                result.add(i, dm.get(i).toString());
-            }
-        }
-        return result;
     }
 
     @Override
     public void run() {
         try {
-            progressBar.setString(null);
-            progressBar.setValue(0);
-
             directoryExistCheck();                           //Проверяем наличие папки "номер_отдела" на FTP сервере
             uploadFile();                                    //Загрузка "swnd5.arc" на сервер
             uploadDetails();                                 //Загрузка информации о заказах на сервер
@@ -62,7 +48,7 @@ public class DataExport extends Thread {
         } catch (InterruptedException | IOException ex) {
             String errorMsg;
             if (ex.toString().contains("FileNotFoundException")) {
-                errorMsg = "Файл обмена отсутствует, либо указан неверный к нему путь.";
+                errorMsg = "Файл " + options.getSwndFileName() + " отсутствует, либо указан неверный к нему путь. Проверьте настройки";
             } else if (ex.toString().contains("NoRouteToHostException")) {
                 errorMsg = "Ошибка соединения с интернетом.";
             } else if (ex.toString().contains("FtpLoginException")) {
@@ -171,6 +157,16 @@ public class DataExport extends Thread {
         }
         in.close();
         return existingOrdersList;
+    }
+
+    private LinkedList cloneList(DefaultListModel dm) {
+        LinkedList<String> result = new LinkedList();
+        if (!dm.isEmpty()) {
+            for (int i = 0; i < dm.getSize(); i++) {
+                result.add(i, dm.get(i).toString());
+            }
+        }
+        return result;
     }
 
     private final JProgressBar progressBar;
