@@ -19,28 +19,32 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import org.apache.commons.net.ftp.FTPClient;
 
-public class DataExport extends Thread {
+public class DataExportThread extends Thread {
 
-    public DataExport(JProgressBar progressBar, DefaultListModel dm) {
+    public DataExportThread(JProgressBar progressBar, DefaultListModel sentOrdersList) {
         this.progressBar = progressBar;
-        this.dm = dm;
-        newOrdersList = cloneList(dm);
-        localFile = new File(Options.getLocalFilePath());       //Полный путь к файлу (включая его название)
+        this.sentOrdersList = sentOrdersList;
+        newOrdersList = cloneList(sentOrdersList);
+        localFilePath = new File(Options.getLocalFilePath());   //Полный путь к файлу (включая его название)
+        errorStatus = false;
     }
 
     @Override
     public void run() {
+        long startTime = System.currentTimeMillis();
+        System.out.println("Start: " + (System.currentTimeMillis() - startTime));
         try {
             directoryExistCheck();                           //Проверяем наличие папки "номер_отдела" на FTP сервере
             uploadFile();                                    //Загрузка "swnd5.arc" на сервер
             uploadDetails();                                 //Загрузка информации о заказах на сервер
             updateArchive();                                 //Обновляем архив предыдущих заказов
 
-            progressBar.setValue(100);
-            progressBar.setString("Загрузка завершена");
-            dm.clear();                                      //Очищаем список заказов на MainFrame
+//            progressBar.setValue(100);
+//            progressBar.setString("Загрузка завершена");
+//            sentOrdersList.clear();                          //Очищаем список заказов на MainFrame
 
         } catch (MalformedURLException ex) {
+            errorStatus = true;
             progressBar.setString("Ошибка загрузки");
             JOptionPane.showMessageDialog(null, "Другая ошибка (MalformedURLException): " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
 
@@ -57,9 +61,11 @@ public class DataExport extends Thread {
             } else {
                 errorMsg = "Другая ошибка.";
             }
+            errorStatus = true;
             progressBar.setString("Ошибка загрузки");
             JOptionPane.showMessageDialog(null, errorMsg + " Ex: " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
         }
+        System.out.println("Stop: " + (System.currentTimeMillis() - startTime));
     }
 
     private void directoryExistCheck() throws IOException {
@@ -81,9 +87,9 @@ public class DataExport extends Thread {
 
         int line, progressValue;
         int i = 0, oldProgressValue = 0;
-        double onePercent = localFile.length() / 100.0;
+        double onePercent = localFilePath.length() / 100.0;
 
-        BufferedInputStream localInputStream = new BufferedInputStream(new FileInputStream(localFile));
+        BufferedInputStream localInputStream = new BufferedInputStream(new FileInputStream(localFilePath));
         BufferedOutputStream uploadOutputStream = new BufferedOutputStream(urlConnection.getOutputStream());
         while ((line = localInputStream.read()) != -1) {
             i++;
@@ -107,7 +113,7 @@ public class DataExport extends Thread {
             URLConnection urlConnection = ur.openConnection();
             LinkedList<String> existingOrdersList = new LinkedList();
 
-            try {            //получаем существующие на FTP-сервере заказы
+            try {                                                               //получаем существующие на FTP-сервере заказы
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                 existingOrdersList = getExistingOrders(in);
 
@@ -168,8 +174,13 @@ public class DataExport extends Thread {
         return result;
     }
 
+    public boolean isError() {
+        return errorStatus;
+    }
+
     private final JProgressBar progressBar;
-    private final DefaultListModel dm;
-    private final File localFile;
+    private final DefaultListModel sentOrdersList;
+    private final File localFilePath;
     private final LinkedList<String> newOrdersList;
+    private boolean errorStatus;
 }

@@ -1,11 +1,15 @@
 package impulsexchangeclient;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
 public class FrameMain extends javax.swing.JFrame {
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -232,8 +236,25 @@ public class FrameMain extends javax.swing.JFrame {
         setTitle("Отдел № " + Options.getDepartmentNumber());
         jOrdersList.setModel(sentOrdersList);                                   //устанавливаем значение по умолчанию для списка заказов
         departmentLabel.setText(Options.getDepartmentNumber() + "/");
+        createTimer();
     }
-    
+
+    private void createTimer() {
+        timer = new Timer(1000, (ActionEvent e) -> {
+            System.out.println("dataExportThread.isAlive: " + dataExportThread.isAlive());
+            if (dataExportThread.isAlive()) {
+
+            } else {
+                if (!dataExportThread.isError()) {
+                    progressBar.setValue(100);
+                    progressBar.setString("Загрузка завершена");
+                    sentOrdersList.clear();                                     //Очищаем список заказов
+                }
+                timer.stop();
+            }
+        });
+    }
+
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
         String nz = orderNumber.getText().trim();
         nz = Options.getDepartmentNumber() + "/" + nz;
@@ -262,7 +283,9 @@ public class FrameMain extends javax.swing.JFrame {
             progressBar.setString(null);
             progressBar.setValue(0);
             try {
-                new DataExport(progressBar, sentOrdersList).start();            //Запуск второго потока для отправки файла на FTP
+                dataExportThread = new DataExportThread(progressBar, sentOrdersList);
+                timer.start();
+                dataExportThread.start();            //Запуск второго потока для отправки файла на FTP
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Ошибка создания потока DataExport. Код ошибки:\r\n" + ex.toString(), "DataExport.start()", JOptionPane.ERROR_MESSAGE);
             }
@@ -309,6 +332,8 @@ public class FrameMain extends javax.swing.JFrame {
     }//GEN-LAST:event_exitMenuBtnActionPerformed
 
     private final DefaultListModel sentOrdersList = new DefaultListModel();
+    private Timer timer;
+    private DataExportThread dataExportThread;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderBtn;
