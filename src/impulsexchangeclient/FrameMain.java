@@ -306,11 +306,9 @@ public class FrameMain extends javax.swing.JFrame {
 
     private LinkedList copyModelToList(DefaultListModel dm) {
         LinkedList<String> result = new LinkedList();
-        if (!dm.isEmpty()) {
             for (int i = 0; i < dm.getSize(); i++) {
                 result.add(i, dm.get(i).toString());
             }
-        }
         return result;
     }
 
