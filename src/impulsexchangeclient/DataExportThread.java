@@ -14,18 +14,18 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.LinkedList;
-import javax.swing.DefaultListModel;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import org.apache.commons.net.ftp.FTPClient;
 
 public class DataExportThread extends Thread {
 
-    public DataExportThread(JProgressBar progressBar, DefaultListModel sentOrdersList) {
+    public DataExportThread(FTPClient ftp, JProgressBar progressBar, List newOrdersList) {
+        this.ftp = ftp;
         this.progressBar = progressBar;
-        this.sentOrdersList = sentOrdersList;
-        newOrdersList = cloneList(sentOrdersList);
-        localFilePath = new File(Options.getLocalFilePath());   //Полный путь к файлу (включая его название)
+        this.newOrdersList = newOrdersList;
+        localFilePath = new File(Options.getLocalFilePath());//Полный путь к файлу (включая его название)
         errorStatus = false;
     }
 
@@ -39,15 +39,6 @@ public class DataExportThread extends Thread {
             uploadDetails();                                 //Загрузка информации о заказах на сервер
             updateArchive();                                 //Обновляем архив предыдущих заказов
 
-//            progressBar.setValue(100);
-//            progressBar.setString("Загрузка завершена");
-//            sentOrdersList.clear();                          //Очищаем список заказов на MainFrame
-
-        } catch (MalformedURLException ex) {
-            errorStatus = true;
-            progressBar.setString("Ошибка загрузки");
-            JOptionPane.showMessageDialog(null, "Другая ошибка (MalformedURLException): " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
-
         } catch (InterruptedException | IOException ex) {
             String errorMsg;
             if (ex.toString().contains("FileNotFoundException")) {
@@ -58,25 +49,23 @@ public class DataExportThread extends Thread {
                 errorMsg = "Ошибка доступа к FTP-серверу. Неверный логин или пароль.";
             } else if (ex.toString().contains("UnknownHostException")) {
                 errorMsg = "Ошибка доступа к FTP-серверу. Неверный IP-адрес.";
+            } else if (ex.toString().contains("MalformedURLException")) {
+                errorMsg = "Ошибка доступа к FTP-серверу. Неверный URL.";
             } else {
-                errorMsg = "Другая ошибка.";
+                errorMsg = "Неизвестная ошибка!";
             }
             errorStatus = true;
             progressBar.setString("Ошибка загрузки");
-            JOptionPane.showMessageDialog(null, errorMsg + " Ex: " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, errorMsg + "\r\n" + "Error: " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
         }
         System.out.println("Stop: " + (System.currentTimeMillis() - startTime));
     }
 
     private void directoryExistCheck() throws IOException {
-        FTPClient ftpClient = new FTPClient();
-        ftpClient.connect(Options.getFtpAddress());
-        ftpClient.login(Options.getFtpLogin(), Options.getFtpPass());
-        ftpClient.enterLocalPassiveMode();
-        boolean exist = ftpClient.changeWorkingDirectory(Options.getDepartmentNumber());
+        boolean exist = ftp.changeWorkingDirectory(Options.getDepartmentNumber());
         if (!exist) {
-            ftpClient.makeDirectory(Options.getDepartmentNumber());
-            ftpClient.changeWorkingDirectory(Options.getDepartmentNumber());
+            ftp.makeDirectory(Options.getDepartmentNumber());
+            ftp.changeWorkingDirectory(Options.getDepartmentNumber());
         }
     }
 
@@ -164,23 +153,13 @@ public class DataExportThread extends Thread {
         return existingOrdersList;
     }
 
-    private LinkedList cloneList(DefaultListModel dm) {
-        LinkedList<String> result = new LinkedList();
-        if (!dm.isEmpty()) {
-            for (int i = 0; i < dm.getSize(); i++) {
-                result.add(i, dm.get(i).toString());
-            }
-        }
-        return result;
-    }
-
     public boolean isError() {
         return errorStatus;
     }
 
     private final JProgressBar progressBar;
-    private final DefaultListModel sentOrdersList;
     private final File localFilePath;
-    private final LinkedList<String> newOrdersList;
+    private final List<String> newOrdersList;
     private boolean errorStatus;
+    private FTPClient ftp;
 }

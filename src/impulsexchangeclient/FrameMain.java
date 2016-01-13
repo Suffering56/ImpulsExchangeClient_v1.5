@@ -1,12 +1,14 @@
 package impulsexchangeclient;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
+import org.apache.commons.net.ftp.FTPClient;
 
 public class FrameMain extends javax.swing.JFrame {
 
@@ -283,16 +285,34 @@ public class FrameMain extends javax.swing.JFrame {
             progressBar.setString(null);
             progressBar.setValue(0);
             try {
-                dataExportThread = new DataExportThread(progressBar, sentOrdersList);
+                dataExportThread = new DataExportThread(ftpConnect(), progressBar, copyModelToList(sentOrdersList));
                 timer.start();
                 dataExportThread.start();            //Запуск второго потока для отправки файла на FTP
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка создания потока DataExport. Код ошибки:\r\n" + ex.toString(), "DataExport.start()", JOptionPane.ERROR_MESSAGE);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером: " + ex.toString(), "FrameMain.ftpConnect()", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(null, "Вы не добавили в список ни одного заказа!");
         }
     }//GEN-LAST:event_toExportBtnActionPerformed
+
+    private FTPClient ftpConnect() throws IOException {
+        FTPClient ftp = new FTPClient();
+        ftp.connect(Options.getFtpAddress());
+        ftp.login(Options.getFtpLogin(), Options.getFtpPass());
+        ftp.enterLocalPassiveMode();
+        return ftp;
+    }
+
+    private LinkedList copyModelToList(DefaultListModel dm) {
+        LinkedList<String> result = new LinkedList();
+        if (!dm.isEmpty()) {
+            for (int i = 0; i < dm.getSize(); i++) {
+                result.add(i, dm.get(i).toString());
+            }
+        }
+        return result;
+    }
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         this.setTitle("Отдел № " + Options.getDepartmentNumber());
