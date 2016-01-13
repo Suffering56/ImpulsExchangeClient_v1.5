@@ -5,8 +5,10 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,6 +20,8 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.io.CopyStreamAdapter;
 
 public class DataExportThread extends Thread {
 
@@ -25,7 +29,7 @@ public class DataExportThread extends Thread {
         this.ftp = ftp;
         this.progressBar = progressBar;
         this.newOrdersList = newOrdersList;
-        localFilePath = new File(Options.getLocalFilePath());//Полный путь к файлу (включая его название)
+        localFile = new File(Options.getLocalFilePath());//Полный путь к файлу (включая его название)
         errorStatus = false;
     }
 
@@ -35,11 +39,20 @@ public class DataExportThread extends Thread {
         System.out.println("Start: " + (System.currentTimeMillis() - startTime));
         try {
             directoryExistCheck();                           //Проверяем наличие папки "номер_отдела" на FTP сервере
-            uploadFile();                                    //Загрузка "swnd5.arc" на сервер
-            uploadDetails();                                 //Загрузка информации о заказах на сервер
-            updateArchive();                                 //Обновляем архив предыдущих заказов
 
-        } catch (InterruptedException | IOException ex) {
+//            uploadSwndFile();                                //Загрузка "swnd5.arc" на сервер
+//            uploadDetails();                                 //Загрузка информации о заказах на сервер
+//            updateArchive();                                 //Обновляем архив предыдущих заказов
+//            BufferedInputStream in = new BufferedInputStream(ftp.retrieveFileStream("swnd5.arc"));
+//            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("F:\\dow\\swnd5.arc"));
+//            int line;
+//
+//            while ((line = in.read()) != -1) {
+//                out.write(line);
+//            }
+//            out.close();
+//            in.close();
+        } catch (IOException ex) {
             String errorMsg;
             if (ex.toString().contains("FileNotFoundException")) {
                 errorMsg = "Файл " + Options.getSwndFileName() + " отсутствует, либо указан неверный к нему путь. Проверьте настройки";
@@ -69,56 +82,65 @@ public class DataExportThread extends Thread {
         }
     }
 
-    private void uploadFile() throws MalformedURLException, IOException, InterruptedException {
-        URL ur = new URL("ftp://" + Options.getFtpLogin() + ":" + Options.getFtpPass() + "@" + Options.getFtpAddress()
-                + ":/" + Options.getDepartmentNumber() + "/" + Options.getSwndFileName());
-        URLConnection urlConnection = ur.openConnection();
+    private void uploadSwndFile() throws IOException {
+        setListener();
+        BufferedInputStream localFileStream = new BufferedInputStream(new FileInputStream(localFile));
+        ftp.appendFile(Options.getSwndFileName(), localFileStream);
+        localFileStream.close();
+    }
 
-        int line, progressValue;
-        int i = 0, oldProgressValue = 0;
-        double onePercent = localFilePath.length() / 100.0;
+    private void setListener() {
+        CopyStreamAdapter streamListener = new CopyStreamAdapter() {
+            private int oldPercent = 0;
+            private final long length = localFile.length();
 
-        BufferedInputStream localInputStream = new BufferedInputStream(new FileInputStream(localFilePath));
-        BufferedOutputStream uploadOutputStream = new BufferedOutputStream(urlConnection.getOutputStream());
-        while ((line = localInputStream.read()) != -1) {
-            i++;
-            progressValue = (int) (i / onePercent);
-
-            uploadOutputStream.write(line);
-            if ((progressValue != oldProgressValue) && (progressValue != 100)) {
-                Thread.sleep(0);
-                progressBar.setValue(progressValue);
+            @Override
+            public void bytesTransferred(long totalBytesTransferred, int bytesTransferred, long streamSize) {
+                int percent = (int) (totalBytesTransferred * 100 / length);
+                if ((percent != oldPercent) && (percent != 100)) {
+                    oldPercent = percent;
+                    progressBar.setValue(percent);
+                }
+//                if (percent > 100) {
+//                    System.out.println("percent = " + percent);
+//                }
             }
-            oldProgressValue = progressValue;
-        }
-        localInputStream.close();
-        uploadOutputStream.close();
+        };
+
+        ftp.setCopyStreamListener(streamListener);
     }
 
     private void uploadDetails() throws MalformedURLException, IOException {
         if (!newOrdersList.isEmpty()) {
-            URL ur = new URL("ftp://" + Options.getFtpLogin() + ":" + Options.getFtpPass() + "@" + Options.getFtpAddress()
-                    + ":/" + Options.getDepartmentNumber() + "/orders.txt");
-            URLConnection urlConnection = ur.openConnection();
             LinkedList<String> existingOrdersList = new LinkedList();
-
-            try {                                                               //получаем существующие на FTP-сервере заказы
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                existingOrdersList = getExistingOrders(in);
-
-            } catch (IOException ex) {                                          //пропускаем исключение, в случае отсутствия файла orders.txt на сервере
-            } finally {                                                         //записываем новые заказы в orders.txt
-                urlConnection = ur.openConnection();
-                BufferedOutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                for (String tempList : existingOrdersList) {
-                    out.write((tempList + "\r\n").getBytes());
+            if (ftp.listFiles("orders.txt").length > 0) {
+                if (ftp.listFiles("orders.txt").length == 1) {
+                    long size = ftp.listFiles("orders.txt")[0].getSize();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Фантастическая ошибка! Несколько одинаковых файлов orders.txt на FTP-сервере!", "DataExport.run()", JOptionPane.ERROR_MESSAGE);
                 }
-                for (String tempList : newOrdersList) {
-                    String date = new Date(System.currentTimeMillis()).toLocaleString();
-                    out.write((tempList + "          " + date + "\r\n").getBytes());
-                }
-                out.close();
             }
+//            URL ur = new URL("ftp://" + Options.getFtpLogin() + ":" + Options.getFtpPass() + "@" + Options.getFtpAddress()
+//                    + ":/" + Options.getDepartmentNumber() + "/orders.txt");
+//            URLConnection urlConnection = ur.openConnection();
+
+//            try {                                                               //получаем существующие на FTP-сервере заказы
+//                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//                existingOrdersList = getExistingOrders(in);
+//
+//            } catch (IOException ex) {                                          //пропускаем исключение, в случае отсутствия файла orders.txt на сервере
+//            } finally {                                                         //записываем новые заказы в orders.txt
+//                urlConnection = ur.openConnection();
+//                BufferedOutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+//                for (String tempList : existingOrdersList) {
+//                    out.write((tempList + "\r\n").getBytes());
+//                }
+//                for (String tempList : newOrdersList) {
+//                    String date = new Date(System.currentTimeMillis()).toLocaleString();
+//                    out.write((tempList + "          " + date + "\r\n").getBytes());
+//                }
+//                out.close();
+//            }
         }
     }
 
@@ -158,8 +180,8 @@ public class DataExportThread extends Thread {
     }
 
     private final JProgressBar progressBar;
-    private final File localFilePath;
+    private final File localFile;
     private final List<String> newOrdersList;
     private boolean errorStatus;
-    private FTPClient ftp;
+    private final FTPClient ftp;
 }
