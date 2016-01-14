@@ -2,26 +2,20 @@ package impulsexchangeclient;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.io.CopyStreamAdapter;
 
 public class DataExportThread extends Thread {
@@ -30,7 +24,7 @@ public class DataExportThread extends Thread {
         this.ftp = ftp;
         this.progressBar = progressBar;
         this.newOrdersList = newOrdersList;
-        localFile = new File(Options.getLocalFilePath());//Полный путь к файлу (включая его название)
+        localFile = new File(Options.getLocalFilePath());
         errorStatus = false;
     }
 
@@ -38,12 +32,11 @@ public class DataExportThread extends Thread {
     public void run() {
         long startTime = System.currentTimeMillis();
         System.out.println("Start: " + (System.currentTimeMillis() - startTime));
-        System.out.println("separator = " + File.separator);
         try {
             changeDirectory();                                  //Проверяем наличие папки "номер_отдела" на FTP сервере
-//            uploadSwndFile();                                   //Загрузка "swnd5.arc" на сервер
-//            uploadDetails();                                    //Загрузка информации о заказах на сервер
-            updateArchive();                                  //Обновляем архив предыдущих заказов
+            uploadSwndFile();                                   //Загрузка "swnd5.arc" на сервер
+            uploadOrders();                                     //Загрузка информации о заказах на сервер
+            updateArchive();                                    //Обновляем архив предыдущих заказов
 
         } catch (IOException ex) {
             String errorMsg;
@@ -61,7 +54,6 @@ public class DataExportThread extends Thread {
                 errorMsg = "Неизвестная ошибка!";
             }
             errorStatus = true;
-            progressBar.setString("Ошибка загрузки");
             JOptionPane.showMessageDialog(null, errorMsg + "\r\n" + "Error: " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
         }
         System.out.println("Stop: " + (System.currentTimeMillis() - startTime));
@@ -78,57 +70,67 @@ public class DataExportThread extends Thread {
     private void uploadSwndFile() throws IOException {
         setProgressListener();
         try (BufferedInputStream localFileStream = new BufferedInputStream(new FileInputStream(localFile))) {
-            ftp.appendFile(Options.getSwndFileName(), localFileStream);
+            ftp.storeFile(Options.getSwndFileName(), localFileStream);
         }
     }
 
-    private void uploadDetails() throws IOException {
-        try (BufferedOutputStream out = new BufferedOutputStream(ftp.appendFileStream("orders.txt"))) {
+    private void uploadOrders() throws IOException {
+        try {
+            BufferedOutputStream out = new BufferedOutputStream(ftp.appendFileStream("orders.txt"));
             for (String tempList : newOrdersList) {
                 String date = new Date(System.currentTimeMillis()).toLocaleString();
                 out.write((tempList + "          " + date + "\r\n").getBytes());
+            }
+            out.close();
+        } catch (Exception ex) {
+            if (ex.toString().contains("NullPointerException")) {
+                errorStatus = true;
+                JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером! Перезапустите программу! " + "Код ошибки: \r\n" + ex.toString(), "DataExport.uploadOrders()", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private void updateArchive() throws IOException {
-        File archive = new File(System.getProperty("user.dir") + File.separator + "archive.bin");
-        File tempFile = new File(System.getProperty("user.dir") + File.separator + "temp.bin");
-        if (!Files.exists(archive.toPath())) {
-            Files.createFile(archive.toPath());
+        String archive = System.getProperty("user.dir") + File.separator + "archive.bin";
+        String temp = System.getProperty("user.dir") + File.separator + "temp.bin";
+        if (!Files.exists(Paths.get(archive))) {
+            Files.createFile(Paths.get(archive));
         } else {
-            Files.move(archive.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } //записывать через append, а выдавать результат от конца к началу
-
-//        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(archive)));
-//        LinkedList<String> existingArchiveList = getExistingOrders(in);
-////////        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(archive, true))) {
-////////            for (String tempList : newOrdersList) {
-////////                String date = new Date(System.currentTimeMillis()).toLocaleString();
-////////                out.write((tempList + "          " + date + "\r\n").getBytes());
-////////            }
-////////            try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(tempFile))) {
-////////                int line;
-////////                while ((line = in.read()) != -1) {
-////////                    out.write(line);
-////////                }
-////////                in.close();
-//        for (String tempList : existingArchiveList) {
-//            out.write((tempList + "\r\n").getBytes());
-//        }
-    }
-//}
-//        newOrdersList.clear();
-//}
-
-    private LinkedList<String> getExistingOrders(BufferedReader in) throws IOException {
-        String line;
-        LinkedList<String> existingOrdersList = new LinkedList();
-        while ((line = in.readLine()) != null) {
-            existingOrdersList.add(line);
+            //переименовываем старый архив, чтобы сохранить данные
+            Files.move(Paths.get(archive), Paths.get(temp), StandardCopyOption.REPLACE_EXISTING);
         }
-        in.close();
-        return existingOrdersList;
+        //создаем новый и добавляем в архив новые заказы
+        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(archive, true))) {
+            for (String tempList : newOrdersList) {
+                String date = new Date(System.currentTimeMillis()).toLocaleString();
+                out.write((tempList + "          " + date + "\r\n").getBytes());
+            }
+        }
+        //записываем в конец старую информацию
+        transferArchive(archive, temp);
+    }
+
+    private void transferArchive(String archive, String temp) throws IOException {
+        FileChannel srcChannel = null;
+        FileChannel dstChannel = null;
+        try {
+            try {
+                srcChannel = new RandomAccessFile(temp, "r").getChannel();
+                dstChannel = new RandomAccessFile(archive, "rw").getChannel();
+                dstChannel.transferFrom(srcChannel, dstChannel.size(), srcChannel.size());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка записи архива! " + "Код ошибки: \r\n" + ex.toString(), "DataExport.transferArchive()", JOptionPane.ERROR_MESSAGE);
+            } finally {
+                if (srcChannel != null) {
+                    srcChannel.close();
+                }
+                if (dstChannel != null) {
+                    dstChannel.close();
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "srcChannel.close()/destChanngel.close() " + "Код ошибки: \r\n" + ex.toString(), "DataExport.transferArchive()", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void setProgressListener() {
@@ -137,7 +139,7 @@ public class DataExportThread extends Thread {
             private final long length = localFile.length();
 
             @Override
-        public void bytesTransferred(long totalBytesTransferred, int bytesTransferred, long streamSize) {
+            public void bytesTransferred(long totalBytesTransferred, int bytesTransferred, long streamSize) {
                 int percent = (int) (totalBytesTransferred * 100 / length);
                 if ((percent != oldPercent) && (percent < 100)) {
                     oldPercent = percent;

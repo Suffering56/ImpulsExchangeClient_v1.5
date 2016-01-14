@@ -243,14 +243,16 @@ public class FrameMain extends javax.swing.JFrame {
 
     private void createTimer() {
         timer = new Timer(1000, (ActionEvent e) -> {
-            System.out.println("dataExportThread.isAlive: " + dataExportThread.isAlive());
             if (dataExportThread.isAlive()) {
 
             } else {
                 if (!dataExportThread.isError()) {
                     progressBar.setValue(100);
-                    progressBar.setString("Загрузка завершена");
-                    sentOrdersList.clear();                                     //Очищаем список заказов
+                    progressBar.setString("Завершено!");
+                    sentOrdersList.clear();
+                } else {
+                    progressBar.setValue(100);
+                    progressBar.setString("Ошибка!");
                 }
                 timer.stop();
             }
@@ -287,7 +289,7 @@ public class FrameMain extends javax.swing.JFrame {
             try {
                 dataExportThread = new DataExportThread(ftpConnect(), progressBar, copyModelToList(sentOrdersList));
                 timer.start();
-                dataExportThread.start();            //Запуск второго потока для отправки файла на FTP
+                dataExportThread.start();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером: " + ex.toString(), "FrameMain.ftpConnect()", JOptionPane.ERROR_MESSAGE);
             }
@@ -299,16 +301,19 @@ public class FrameMain extends javax.swing.JFrame {
     private FTPClient ftpConnect() throws IOException {
         FTPClient ftp = new FTPClient();
         ftp.connect(Options.getFtpAddress());
-        ftp.login(Options.getFtpLogin(), Options.getFtpPass());
+       // boolean stableConnect = ;
+        if (!ftp.login(Options.getFtpLogin(), Options.getFtpPass())) {
+            throw new IOException();
+        }
         ftp.enterLocalPassiveMode();
         return ftp;
     }
 
     private LinkedList copyModelToList(DefaultListModel dm) {
         LinkedList<String> result = new LinkedList();
-            for (int i = 0; i < dm.getSize(); i++) {
-                result.add(i, dm.get(i).toString());
-            }
+        for (int i = 0; i < dm.getSize(); i++) {
+            result.add(i, dm.get(i).toString());
+        }
         return result;
     }
 
