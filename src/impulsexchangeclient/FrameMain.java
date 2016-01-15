@@ -285,7 +285,7 @@ public class FrameMain extends javax.swing.JFrame {
     }//GEN-LAST:event_jOrdersListKeyPressed
 
     private void optionsCallMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsCallMenuBtnActionPerformed
-        new FrameOptions().setVisible(true);
+        new FrameOptions(this).setVisible(true);
     }//GEN-LAST:event_optionsCallMenuBtnActionPerformed
 
     private void archiveCallMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_archiveCallMenuBtnActionPerformed

@@ -1,14 +1,20 @@
 package impulsexchangeclient;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class FrameOptions extends javax.swing.JFrame {
 
-    public FrameOptions() {
+    public FrameOptions(JFrame parent) {
+        this.parent = parent;
         initComponents();
         setLocationRelativeTo(null);
-        this.setAlwaysOnTop(true);
+        parent.setEnabled(false);
+
         depNumberField.setText(Options.getDepartmentNumber());
         localFilePathField.setText(Options.getLocalFilePath());
         ftpAddressField.setText(Options.getFtpAddress());
@@ -43,6 +49,11 @@ public class FrameOptions extends javax.swing.JFrame {
         setName("optionsFrame"); // NOI18N
         setResizable(false);
         setType(java.awt.Window.Type.POPUP);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -220,36 +231,50 @@ public class FrameOptions extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
+        parent.setEnabled(true);
         this.dispose();
     }//GEN-LAST:event_cancelBtnActionPerformed
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
-        Options.setDepartmentNumber(depNumberField.getText());
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher(depNumberField.getText().trim());
+        if (m.matches()) {
+            Options.setDepartmentNumber(depNumberField.getText());
+        } else {
+            depNumberField.setText(Options.getDepartmentNumber());
+            JOptionPane.showMessageDialog(null, "Некорректный номер отдела!");
+            return;
+        }
+
         if (file != null) {
             Options.setLocalFilePath(file.getPath());
             Options.setSwndFileName(file.getName());
         }
-
+        
         Options.setFtpAddress(ftpAddressField.getText());
         Options.setFtpLogin(ftpLoginField.getText());
         Options.setFtpPass(ftpPassField.getText());
 
         Options.setOptions();
+        parent.setEnabled(true);
         this.dispose();
     }//GEN-LAST:event_saveBtnActionPerformed
 
     private void localFileChooseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_localFileChooseBtnActionPerformed
-        this.setAlwaysOnTop(false);
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(new File(localFilePathField.getText()));
         if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             file = chooser.getSelectedFile();
             localFilePathField.setText(file.getPath());
-            this.setAlwaysOnTop(true);
         }
     }//GEN-LAST:event_localFileChooseBtnActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        parent.setEnabled(true);
+    }//GEN-LAST:event_formWindowClosing
+
     private File file;
+    private final JFrame parent;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelBtn;

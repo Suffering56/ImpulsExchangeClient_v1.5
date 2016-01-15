@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class FirebirdConnection {
+public class ConnectionFirebird {
 
     public void connect() throws ClassNotFoundException, SQLException {
         Class.forName("org.firebirdsql.jdbc.FBDriver");
