@@ -1,6 +1,6 @@
 package impulsexchangeclient;
 
-public class FrameMonitor extends javax.swing.JFrame {
+public class FrameImportToMonitor extends javax.swing.JFrame {
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -22,7 +22,7 @@ public class FrameMonitor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public FrameMonitor() {
+    public FrameImportToMonitor() {
         initComponents();
     }
 
