@@ -11,12 +11,12 @@ import javax.swing.JOptionPane;
 public class Options {
 
     public static void setOptions() {
-        String departmentNumberWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v departmentNumber /t REG_SZ /d " + departmentNumber + " /f";
-        String localFilePathWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v localFilePath /t REG_SZ /d " + localFilePath + " /f";
-        String swndFileNameWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v swndFileName /t REG_SZ /d " + swndFileName + " /f";
-        String ftpAddressWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v ftpAddress /t REG_SZ /d " + ftpAddress + " /f";
-        String ftpLoginWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v ftpLogin /t REG_SZ /d " + ftpLogin + " /f";
-        String ftpPassWQuery = "REG ADD HKCU\\Software\\ImpulsDataExchange /v ftpPass /t REG_SZ /d " + ftpPass + " /f";
+        String departmentNumberWQuery = "REG ADD HKCU\\Software\\ImpulsExchangeClient /v departmentNumber /t REG_SZ /d " + departmentNumber + " /f";
+        String localFilePathWQuery = "REG ADD HKCU\\Software\\ImpulsExchangeClient /v localFilePath /t REG_SZ /d " + localFilePath + " /f";
+        String swndFileNameWQuery = "REG ADD HKCU\\Software\\ImpulsExchangeClient /v swndFileName /t REG_SZ /d " + swndFileName + " /f";
+        String ftpAddressWQuery = "REG ADD HKCU\\Software\\ImpulsExchangeClient /v ftpAddress /t REG_SZ /d " + ftpAddress + " /f";
+        String ftpLoginWQuery = "REG ADD HKCU\\Software\\ImpulsExchangeClient /v ftpLogin /t REG_SZ /d " + ftpLogin + " /f";
+        String ftpPassWQuery = "REG ADD HKCU\\Software\\ImpulsExchangeClient /v ftpPass /t REG_SZ /d " + ftpPass + " /f";
 
         String optionsWriteQuery[] = {departmentNumberWQuery, localFilePathWQuery, swndFileNameWQuery, ftpAddressWQuery,
             ftpLoginWQuery, ftpPassWQuery};                                     //Инициализация запросов на изменение реестра
@@ -28,7 +28,8 @@ public class Options {
                 while (process.isAlive()) {}                                    //ждем пока процесс выполнит свою работу
                 process.destroy();                                              //уничтожаем процесс
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка записи реестра. Код ошибки:\r\n" + ex.toString(), "Options.setOptions()", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Ошибка записи реестра.\r\n"
+                        + "ex.toString(): " + ex.toString(), "Options.setOptions()", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -71,7 +72,8 @@ public class Options {
                 importOptionsIntoProgramm(optionsList);                        //Импорт извлеченных параметров в класс Options
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Ошибка чтения реестра. Код ошибки:\r\n" + ex.toString(), "Options.getOptions()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ошибка чтения реестра.\r\n"
+                    + "ex.toString(): " + ex.toString(), "Options.getOptions()", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -151,10 +153,10 @@ public class Options {
     private static final Pattern p = Pattern.compile(
             "\\w+\\p{Space}+REG_SZ\\p{Space}+(.+)");          //Шаблон для извлечения значений реестра
 
-    private static final String depNum = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v departmentNumber";
-    private static final String filePath = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v localFilePath";
-    private static final String fileName = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v swndFileName";
-    private static final String address = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpAddress";
-    private static final String login = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpLogin";
-    private static final String password = "REG QUERY HKCU\\Software\\ImpulsDataExchange /v ftpPass";
+    private static final String depNum = "REG QUERY HKCU\\Software\\ImpulsExchangeClient /v departmentNumber";
+    private static final String filePath = "REG QUERY HKCU\\Software\\ImpulsExchangeClient /v localFilePath";
+    private static final String fileName = "REG QUERY HKCU\\Software\\ImpulsExchangeClient /v swndFileName";
+    private static final String address = "REG QUERY HKCU\\Software\\ImpulsExchangeClient /v ftpAddress";
+    private static final String login = "REG QUERY HKCU\\Software\\ImpulsExchangeClient /v ftpLogin";
+    private static final String password = "REG QUERY HKCU\\Software\\ImpulsExchangeClient /v ftpPass";
 }
