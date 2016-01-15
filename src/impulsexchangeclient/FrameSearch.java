@@ -130,7 +130,7 @@ public class FrameSearch extends javax.swing.JFrame {
             doSearch();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Ошибка чтения архива (archive.bin).\r\n"
-                    + "ex.toString()" + ex.toString(), "SearchFrame.doSearch()", JOptionPane.ERROR_MESSAGE);
+                    + "ex.toString(): " + ex.toString(), "SearchFrame.doSearch()", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_doSearchBtnActionPerformed
 
