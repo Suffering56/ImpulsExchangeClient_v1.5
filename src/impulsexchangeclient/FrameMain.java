@@ -1,14 +1,9 @@
 package impulsexchangeclient;
 
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
-import org.apache.commons.net.ftp.FTPClient;
 
 public class FrameMain extends javax.swing.JFrame {
 
@@ -238,25 +233,6 @@ public class FrameMain extends javax.swing.JFrame {
         setTitle("Отдел № " + Options.getDepartmentNumber());
         jOrdersList.setModel(sentOrdersList);                                   //устанавливаем значение по умолчанию для списка заказов
         departmentLabel.setText(Options.getDepartmentNumber() + "/");
-        createTimer();
-    }
-
-    private void createTimer() {
-        timer = new Timer(10, (ActionEvent e) -> {
-            if (dataExportThread.isAlive()) {
-                progressBar.setValue(dataExportThread.getProgress());
-            } else {
-                if (!dataExportThread.isError()) {
-                    progressBar.setValue(100);
-                    progressBar.setString("Завершено!");
-                    sentOrdersList.clear();
-                } else {
-                    progressBar.setValue(100);
-                    progressBar.setString("Ошибка!");
-                }
-                timer.stop();
-            }
-        });
     }
 
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
@@ -283,52 +259,13 @@ public class FrameMain extends javax.swing.JFrame {
     }//GEN-LAST:event_removeOrderBtnActionPerformed
 
     private void toExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toExportBtnActionPerformed
-        if (!sentOrdersList.isEmpty()) {
-            progressBar.setString(null);
-            progressBar.setValue(0);
-            runExport();                //запуск соединения, проверок и создания второго потока.
+        if (!sentOrdersList.isEmpty()) {  
+            DataExportLauncher launcher = new DataExportLauncher(progressBar, sentOrdersList);
+            launcher.runExport();
         } else {
             JOptionPane.showMessageDialog(null, "Вы не добавили в список ни одного заказа!");
         }
     }//GEN-LAST:event_toExportBtnActionPerformed
-
-    private void runExport() {
-        try {
-            dataExportThread = new DataExportThread(ftpConnect(), copyModelToList(sentOrdersList));
-            timer.start();
-            dataExportThread.start();
-        } catch (IOException ex) {
-            String errorMsg = "Неизвестная ошибка.";
-            if (ex.toString().contains("UnknownHostException")) {
-                errorMsg = "Указан неверный <адрес> FTP-сервера.";
-            } else if (ex.toString().contains("FtpLoginException")) {
-                errorMsg = "Указан неверный <логин> или <пароль>. \r\n"
-                        + "Либо вы указали <адрес> ЧУЖОГО FTP-сервера.";
-            } else if (ex.toString().contains("NoRouteToHostException")) {
-                errorMsg = "Отсутствует подключение к интернету. Проверьте соединение.";
-            }
-            JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером. \r\n" 
-                    + errorMsg + "\r\n" + "ex.toString(): " + ex.toString(), "FrameMain.runExport()", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private FTPClient ftpConnect() throws IOException {
-        FTPClient ftp = new FTPClient();
-        ftp.connect(Options.getFtpAddress());
-        if (!ftp.login(Options.getFtpLogin(), Options.getFtpPass())) {
-            throw new IOException("FtpLoginException");
-        }
-        ftp.enterLocalPassiveMode();
-        return ftp;
-    }
-
-    private LinkedList copyModelToList(DefaultListModel dm) {
-        LinkedList<String> result = new LinkedList();
-        for (int i = 0; i < dm.getSize(); i++) {
-            result.add(i, dm.get(i).toString());
-        }
-        return result;
-    }
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         this.setTitle("Отдел № " + Options.getDepartmentNumber());
@@ -368,8 +305,6 @@ public class FrameMain extends javax.swing.JFrame {
     }//GEN-LAST:event_exitMenuBtnActionPerformed
 
     private final DefaultListModel sentOrdersList = new DefaultListModel();
-    private Timer timer;
-    private DataExportThread dataExportThread;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderBtn;
