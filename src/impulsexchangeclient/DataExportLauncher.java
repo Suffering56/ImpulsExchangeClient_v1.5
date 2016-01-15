@@ -36,7 +36,7 @@ public class DataExportLauncher {
                 errorMsg = "Отсутствует подключение к интернету. Проверьте соединение.";
             }
             JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером. \r\n"
-                    + errorMsg + "\r\n" + "ex.toString(): " + ex.toString(), "FrameMain.runExport()", JOptionPane.ERROR_MESSAGE);
+                    + errorMsg + "\r\n" + "ex.toString(): " + ex.toString(), "DataExportLauncher.runExport()", JOptionPane.ERROR_MESSAGE);
         }
     }
 
