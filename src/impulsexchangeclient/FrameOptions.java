@@ -83,6 +83,7 @@ public class FrameOptions extends javax.swing.JFrame {
             }
         });
 
+        localFilePathField.setEditable(false);
         localFilePathField.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -248,7 +249,7 @@ public class FrameOptions extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_localFileChooseBtnActionPerformed
 
-    private File file = null;
+    private File file;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelBtn;

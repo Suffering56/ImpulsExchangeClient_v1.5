@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -30,34 +29,46 @@ public class DataExportThread extends Thread {
     @Override
     public void run() {
         try {
-            changeDirectory();                                  //Проверяем наличие папки "номер_отдела" на FTP сервере
-            uploadSwndFile();                                   //Загрузка "swnd5.arc" на сервер
+            setFtpDirectory();                                  //Проверяем наличие папки "номер_отдела" на FTP сервере
+            uploadSwndFile();                                   //Загрузка "swndX.arc" на сервер
             uploadOrders();                                     //Загрузка информации о заказах на сервер
             updateArchive();                                    //Обновляем архив предыдущих заказов '
-            ftp.disconnect();
         } catch (IOException ex) {
-            String errorMsg;
-            if (ex.toString().contains("FileNotFoundException")) {
-                errorMsg = "Указан неверный путь к файлу обмена <" + Options.getSwndFileName() + "> \r\n"
-                        + "Пожалуйста проверьте настройки. Пункт <Путь к файлу \"" + Options.getSwndFileName() + "\"";
-            } else if (ex.toString().contains("CopyStreamException")) {
-                errorMsg = "Ошибка отправки данных на FTP-сервер. \r\n"
-                        + "Вероятно было прервано соединение с интернетом.";
+            String errorMsg = "Неизвестная ошибка.";
+            errorStatus = true;
+            if (ex.toString().contains("UploadSwndFileException")) {
+                if (ex.toString().contains("FileNotFoundException")) {
+                    errorMsg = "Указан неверный путь к файлу обмена <" + Options.getSwndFileName() + "> \r\n"
+                            + "Пожалуйста проверьте настройки программы. Пункт: <Путь к файлу обмена>.";
+                } else if (ex.toString().contains("CopyStreamException")) {
+                    errorMsg = "Ошибка отправки данных на FTP-сервер. \r\n"
+                            + "Вероятно было прервано соединение с интернетом.";
+                }
             } else if (ex.toString().contains("UpdateArchiveException")) {
                 errorMsg = "Ошибка записи архива. Недостаточно прав доступа к папке <" + System.getProperty("user.dir") + ">.";
-            } else {
-                errorMsg = "Неизвестная ошибка!";
             }
-            errorStatus = true;
             JOptionPane.showMessageDialog(null, errorMsg + "\r\n" + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                ftp.disconnect();
+            } catch (IOException ex) {
+                errorStatus = true;
+                JOptionPane.showMessageDialog(null, "Ошибка закрытия соединения: <FTP.Disconnect()>." + "\r\n"
+                        + "ex.toString(): " + ex.toString(), "DataExport.run()", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
-    private void changeDirectory() throws IOException {
-        boolean exist = ftp.changeWorkingDirectory(Options.getDepartmentNumber());
-        if (!exist) {
-            ftp.makeDirectory(Options.getDepartmentNumber());
-            ftp.changeWorkingDirectory(Options.getDepartmentNumber());
+    private void setFtpDirectory() throws IOException {
+        try {
+            boolean exist = ftp.changeWorkingDirectory(Options.getDepartmentNumber());
+            if (!exist) {
+                ftp.makeDirectory(Options.getDepartmentNumber());
+                ftp.changeWorkingDirectory(Options.getDepartmentNumber());
+            }
+        } catch (IOException ex) {
+            throw new IOException("[SetFtpDirectoryException]" + "\r\n"
+                    + "ex.toString(): " + ex.toString());
         }
     }
 
@@ -65,6 +76,9 @@ public class DataExportThread extends Thread {
         setProgressListener();
         try (BufferedInputStream localFileStream = new BufferedInputStream(new FileInputStream(localFile))) {
             ftp.storeFile(Options.getSwndFileName(), localFileStream);
+        } catch (IOException ex) {
+            throw new IOException("[UploadSwndFileException]" + "\r\n"
+                    + "ex.toString(): " + ex.toString());
         }
     }
 
@@ -74,6 +88,9 @@ public class DataExportThread extends Thread {
                 String date = new Date(System.currentTimeMillis()).toLocaleString();
                 out.write((tempList + "          " + date + "\r\n").getBytes());
             }
+        } catch (IOException | NullPointerException ex) {
+            throw new IOException("[UploadOrdersException]" + "\r\n"
+                    + "ex.toString(): " + ex.toString());
         }
     }
 
@@ -83,12 +100,14 @@ public class DataExportThread extends Thread {
         try {
             if (!Files.exists(Paths.get(archive))) {
                 Files.createFile(Paths.get(archive));
+                Files.createFile(Paths.get(temp));
             } else {
                 //переименовываем старый архив, чтобы сохранить данные
                 Files.move(Paths.get(archive), Paths.get(temp), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException ex) {
-            throw new AccessDeniedException("[UpdateArchiveException.createFile]" + "\r\n" + ex.getMessage());
+            throw new IOException("[UpdateArchiveException.create_or_rename]" + "\r\n"
+                    + "ex.toString(): " + ex.toString());
         }
 
         //создаем новый и добавляем в архив новые заказы
@@ -105,13 +124,13 @@ public class DataExportThread extends Thread {
     private void overwriteFromTemp(String archive, String temp) throws IOException {
         FileChannel srcChannel = null;
         FileChannel dstChannel = null;
-
         try {
             srcChannel = new RandomAccessFile(temp, "r").getChannel();
-            dstChannel = new RandomAccessFile(archive, "rw").getChannel();;
+            dstChannel = new RandomAccessFile(archive, "rw").getChannel();
             dstChannel.transferFrom(srcChannel, dstChannel.size(), srcChannel.size());
         } catch (IOException ex) {
-            throw new AccessDeniedException("[UpdateArchiveException.overwriteFromTemp]" + "\r\n" + ex.getMessage());
+            throw new IOException("[UpdateArchiveException.overwriteFromTemp(archive, temp)]" + "\r\n"
+                    + "ex.toString(): " + ex.toString());
         } finally {
             if (srcChannel != null) {
                 srcChannel.close();

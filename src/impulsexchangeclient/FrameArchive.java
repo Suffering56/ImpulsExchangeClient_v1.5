@@ -19,7 +19,8 @@ public class FrameArchive extends javax.swing.JFrame {
         try {
             extractArchive();
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Ошибка чтения архива (archive.bin). Код ошибки:\r\n" + ex.toString(), "ArchiveFrame.extractArchive()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ошибка чтения архива (archive.bin).\r\n"
+                    + "ex.toString(): " + ex.toString(), "ArchiveFrame.extractArchive()", JOptionPane.ERROR_MESSAGE);
         }
         jArchiveList.setModel(archiveList);
         jDateList.setModel(dateList);
@@ -61,7 +62,7 @@ public class FrameArchive extends javax.swing.JFrame {
                 case "date":
                     return m.group(2) + "     " + m.group(3);   //дата + время
                 default:
-                    return "Неверный параметр функции <extractData>";
+                    return "Неверный параметр функции <extractData()>";
             }
         } else {
             return "Ошибка чтения строки: <" + line + ">";

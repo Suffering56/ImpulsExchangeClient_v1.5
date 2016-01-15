@@ -286,30 +286,29 @@ public class FrameMain extends javax.swing.JFrame {
         if (!sentOrdersList.isEmpty()) {
             progressBar.setString(null);
             progressBar.setValue(0);
-            exportRun();                //запуск соединения, проверок и создания второго потока.
+            runExport();                //запуск соединения, проверок и создания второго потока.
         } else {
             JOptionPane.showMessageDialog(null, "Вы не добавили в список ни одного заказа!");
         }
     }//GEN-LAST:event_toExportBtnActionPerformed
 
-    private void exportRun() {
+    private void runExport() {
         try {
             dataExportThread = new DataExportThread(ftpConnect(), copyModelToList(sentOrdersList));
             timer.start();
             dataExportThread.start();
         } catch (IOException ex) {
-            String errorMsg;
+            String errorMsg = "Неизвестная ошибка.";
             if (ex.toString().contains("UnknownHostException")) {
                 errorMsg = "Указан неверный <адрес> FTP-сервера.";
             } else if (ex.toString().contains("FtpLoginException")) {
-                errorMsg = "Указан неверный <логин> или <пароль>. \r\nЛибо вы указали <адрес> ЧУЖОГО FTP-сервера.";
+                errorMsg = "Указан неверный <логин> или <пароль>. \r\n"
+                        + "Либо вы указали <адрес> ЧУЖОГО FTP-сервера.";
             } else if (ex.toString().contains("NoRouteToHostException")) {
                 errorMsg = "Отсутствует подключение к интернету. Проверьте соединение.";
-            } else {
-                errorMsg = "Неизвестный параметр ошибки.";
             }
-            JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером. \r\n"
-                    + errorMsg + "\r\nError Message: " + ex.toString(), "FrameMain.ftpConnect()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Ошибка соединения с FTP-сервером. \r\n" 
+                    + errorMsg + "\r\n" + "ex.toString(): " + ex.toString(), "FrameMain.runExport()", JOptionPane.ERROR_MESSAGE);
         }
     }
 
