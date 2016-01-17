@@ -127,7 +127,7 @@ public class Options {
         Options.localFilePath = localFilePath;
     }
 
-    public static String getDepartmentNumber() {
+    public static String getDepartmentName() {
         return departmentNumber;
     }
 

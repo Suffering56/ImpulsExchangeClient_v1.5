@@ -61,10 +61,10 @@ public class DataExportThread extends Thread {
 
     private void setFtpDirectory() throws IOException {
         try {
-            boolean exist = ftp.changeWorkingDirectory(Options.getDepartmentNumber());
+            boolean exist = ftp.changeWorkingDirectory(Options.getDepartmentName());
             if (!exist) {
-                ftp.makeDirectory(Options.getDepartmentNumber());
-                ftp.changeWorkingDirectory(Options.getDepartmentNumber());
+                ftp.makeDirectory(Options.getDepartmentName());
+                ftp.changeWorkingDirectory(Options.getDepartmentName());
             }
         } catch (IOException ex) {
             throw new IOException("[SetFtpDirectoryException]" + "\r\n"

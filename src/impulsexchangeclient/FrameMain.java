@@ -1,5 +1,9 @@
 package impulsexchangeclient;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
@@ -101,8 +105,8 @@ public class FrameMain extends javax.swing.JFrame {
         progressBar.setFocusable(false);
         progressBar.setStringPainted(true);
 
+        orderNumber.setText("2397");
         orderNumber.setMaximumSize(new java.awt.Dimension(99999, 20));
-        orderNumber.setPreferredSize(null);
         orderNumber.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 orderNumberKeyPressed(evt);
@@ -230,27 +234,33 @@ public class FrameMain extends javax.swing.JFrame {
     public FrameMain() {
         initComponents();
         setLocationRelativeTo(null);                                            //позиционирование по центру экрана     
-        setTitle("Отдел № " + Options.getDepartmentNumber());
+        setTitle("Отдел № " + Options.getDepartmentName());
         jOrdersList.setModel(sentOrdersList);                                   //устанавливаем значение по умолчанию для списка заказов
-        departmentLabel.setText(Options.getDepartmentNumber() + "/");
+        departmentLabel.setText(Options.getDepartmentName() + "/");
     }
 
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
-        String nz = orderNumber.getText().trim();
-        nz = Options.getDepartmentNumber() + "/" + nz;
-        Pattern p = Pattern.compile(Options.getDepartmentNumber() + "/\\d+");
-        Matcher m = p.matcher(nz);
+        String orderName = orderNumber.getText().trim();
+        String fullOrderName = Options.getDepartmentName() + "/" + orderName;
+        Pattern p = Pattern.compile(Options.getDepartmentName() + "/\\d+");
+        Matcher m = p.matcher(fullOrderName);
         if (m.matches()) {                                                      //проверка на корректность заказа (только цифры - не менее одной)
-            if (!sentOrdersList.contains(nz)) {                                 //проверка на дублирование номера заказа
-                sentOrdersList.addElement(nz);                                  //добавить заказ в список
+            if (!sentOrdersList.contains(fullOrderName)) {                      //проверка на дублирование номера заказа
+                getFirebirdData(orderName);
+                sentOrdersList.addElement(fullOrderName);                       //добавить заказ в список
             } else {
-                JOptionPane.showMessageDialog(null, "Заказ №" + nz + " уже есть в списке!");
+                JOptionPane.showMessageDialog(null, "Заказ №" + fullOrderName + " уже есть в списке!");
             }
         } else {
             JOptionPane.showMessageDialog(null, "Некорректный номер заказа!");
         }
         orderNumber.setText(null);
     }//GEN-LAST:event_addOrderBtnActionPerformed
+
+    private void getFirebirdData(String orderName) {
+        FirebirdDataLoader loader = new FirebirdDataLoader(orderName);
+        loader.getData();
+    }
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed
         if (jOrdersList.getSelectedIndex() != -1) {                             //Если заказ выбран
@@ -259,7 +269,7 @@ public class FrameMain extends javax.swing.JFrame {
     }//GEN-LAST:event_removeOrderBtnActionPerformed
 
     private void toExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toExportBtnActionPerformed
-        if (!sentOrdersList.isEmpty()) {  
+        if (!sentOrdersList.isEmpty()) {
             DataExportLauncher launcher = new DataExportLauncher(progressBar, sentOrdersList);
             launcher.runExport();
         } else {
@@ -268,8 +278,8 @@ public class FrameMain extends javax.swing.JFrame {
     }//GEN-LAST:event_toExportBtnActionPerformed
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
-        this.setTitle("Отдел № " + Options.getDepartmentNumber());
-        departmentLabel.setText(Options.getDepartmentNumber() + "/");
+        this.setTitle("Отдел № " + Options.getDepartmentName());
+        departmentLabel.setText(Options.getDepartmentName() + "/");
     }//GEN-LAST:event_formWindowGainedFocus
 
     private void orderNumberKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderNumberKeyPressed

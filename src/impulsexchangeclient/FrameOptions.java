@@ -15,7 +15,7 @@ public class FrameOptions extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         parent.setEnabled(false);
 
-        depNumberField.setText(Options.getDepartmentNumber());
+        depNumberField.setText(Options.getDepartmentName());
         localFilePathField.setText(Options.getLocalFilePath());
         ftpAddressField.setText(Options.getFtpAddress());
         ftpLoginField.setText(Options.getFtpLogin());
@@ -241,7 +241,7 @@ public class FrameOptions extends javax.swing.JFrame {
         if (m.matches()) {
             Options.setDepartmentNumber(depNumberField.getText());
         } else {
-            depNumberField.setText(Options.getDepartmentNumber());
+            depNumberField.setText(Options.getDepartmentName());
             JOptionPane.showMessageDialog(null, "Некорректный номер отдела!");
             return;
         }
