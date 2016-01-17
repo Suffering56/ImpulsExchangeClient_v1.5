@@ -181,10 +181,18 @@ public class FrameMonitor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public FrameMonitor() {
+    public FrameMonitor(FirebirdOrderEntity entity) {
+        this.entity = entity;
         initComponents();
+        setLocationRelativeTo(null);
+        readData();
     }
 
+    private void readData() {
+
+    }
+
+    private final FirebirdOrderEntity entity;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

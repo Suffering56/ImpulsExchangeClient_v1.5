@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Locale;
+import javax.swing.JOptionPane;
 
 public class FirebirdDataLoader {
 
@@ -12,33 +13,39 @@ public class FirebirdDataLoader {
         this.orderName = orderName;
     }
 
-    public void getData() {
+    public FirebirdOrderEntity getData() {
         connection = FirebirdConnector.getInstance().connect();
         try {
             statement = connection.createStatement();
         } catch (SQLException ex) {
             System.out.println("CreateStatementException: " + ex);
         }
-        //Получам общую информацию о заказе
-        int size = getResultSetSize("SELECT count(*) FROM INVOICES where INVN = " + orderName
-                + "AND DEPNO  = " + Options.getDepartmentName(), 1);
-        if (size > 0) {
-            extractGeneralData();
-        }
-        //Получаем инфмормацию о клиенте
-        size = getResultSetSize("SELECT count(*) FROM CLIENTS where CLNUM = " + entity.getClnum()
-                + "AND CLDEP  = " + Options.getDepartmentName(), 2);
-        if (size > 0) {
+
+        if (extractGeneralData()) {
+            //=====================Получаем инфмормацию о клиенте//=====================
+            getResultSetSize("SELECT count(*) FROM CLIENTS where CLNUM = " + entity.getClnum()
+                    + "AND CLDEP  = " + Options.getDepartmentName(), 2);
             extractClientData();
+
+            //=====================Подсчет количества конструкций//=====================
+            getResultSetSize("SELECT count(*) FROM INVSPEC where INVNO = " + entity.getInvno()
+                    + "AND DEPNO  = " + Options.getDepartmentName(), 3);
+            extractConstructionsData();
+
+            //=====================Получаем информацию о доп. работах//=====================
+            getResultSetSize("SELECT count(*) FROM DOPWORK where INVNO = " + entity.getInvno()
+                    + "AND DEPNO  = " + Options.getDepartmentName(), 4);
+            extractAdditionalData();
         }
 
-        //Подсчет количества конструкций
-        size = getResultSetSize("SELECT count(*) FROM INVSPEC where INVNO = " + entity.getInvno()
-                + "AND DEPNO  = " + Options.getDepartmentName(), 3);
-        if (size > 0) {
-//            extractConstructionsData();
+        //=====================Закрываем connection//=====================
+        try {
+            connection.close();
+        } catch (SQLException ex) {
+            System.out.println("CloseConnectionError: " + ex);
         }
         System.out.println("entity: " + entity);
+        return entity;
     }
 
     private int getResultSetSize(String query, int counter) {
@@ -55,20 +62,30 @@ public class FirebirdDataLoader {
         return size;
     }
 
-    private void extractGeneralData() {
-        try {
-            ResultSet rs = statement.executeQuery("SELECT * FROM INVOICES where INVN = " + orderName
-                    + "AND DEPNO  = " + Options.getDepartmentName());
-            while (rs.next()) {
-                entity = new FirebirdOrderEntity(
-                        orderName + "/" + Options.getDepartmentName(),
-                        rs.getInt("INVNO"),
-                        rs.getInt("CLNUM"));
-                entity.setCost(String.format(Locale.US, "%.2f", rs.getDouble("IZDAMOUNT")));
-                entity.setMaster(rs.getString("ZMRNAME"));
+    private boolean extractGeneralData() {
+        //Если: в базе найдены записи о данном заказе
+        if (getResultSetSize("SELECT count(*) FROM INVOICES where INVN = " + orderName
+                + "AND DEPNO  = " + Options.getDepartmentName(), 1) > 0) {
+            //Получаем основную информацию
+            try {
+                ResultSet rs = statement.executeQuery("SELECT * FROM INVOICES where INVN = " + orderName
+                        + "AND DEPNO  = " + Options.getDepartmentName());
+                while (rs.next()) {
+                    entity = new FirebirdOrderEntity(
+                            orderName + "/" + Options.getDepartmentName(),
+                            rs.getInt("INVNO"),
+                            rs.getInt("CLNUM"));
+                    entity.setCost(String.format(Locale.US, "%.2f", rs.getDouble("IZDAMOUNT")));
+                    entity.setMaster(rs.getString("ZMRNAME"));
+                }
+            } catch (SQLException ex) {
+                System.out.println("extractGeneralData: " + ex);
             }
-        } catch (SQLException ex) {
-            System.out.println("extractGeneralData: " + ex);
+            return true;
+        } else {
+            JOptionPane.showMessageDialog(null, "Отсутствует информация о заказе <" + orderName + "> в базе данных СуперОкна!",
+                    "FirebirdDataLoader.extractGeneralData()", JOptionPane.INFORMATION_MESSAGE);
+            return false;
         }
     }
 
@@ -90,15 +107,36 @@ public class FirebirdDataLoader {
         try {
             ResultSet rs = statement.executeQuery("SELECT * FROM INVSPEC where INVNO = " + entity.getInvno()
                     + "AND DEPNO  = " + Options.getDepartmentName());
+            int constructionsCount = 0;
             while (rs.next()) {
-
+                constructionsCount += rs.getInt("QTY");
             }
-            entity.setConstructionsCount(rs.getInt(""));
-            entity.setDelivery(rs.getInt(""));
-            entity.setMounting(rs.getInt(""));
-            entity.setDismantling(rs.getInt(""));
+            entity.setConstructionsCount(constructionsCount);
         } catch (SQLException ex) {
             System.out.println("extractConstructionsData: " + ex);
+        }
+    }
+
+    private void extractAdditionalData() {
+        try {
+            ResultSet rs = statement.executeQuery("SELECT * FROM DOPWORK where INVNO = " + entity.getInvno()
+                    + "AND DEPNO  = " + Options.getDepartmentName());
+            while (rs.next()) {
+                switch (rs.getInt("WRKNO")) {
+                    case 4:
+                        entity.setDismantling(true);
+                        break;
+                    case 5:
+                        entity.setMounting(true);
+                        break;
+                    case 6:
+                        entity.setDelivery(true);
+                        break;
+                }
+
+            }
+        } catch (SQLException ex) {
+            System.out.println("extractAdditionalData: " + ex);
         }
     }
 

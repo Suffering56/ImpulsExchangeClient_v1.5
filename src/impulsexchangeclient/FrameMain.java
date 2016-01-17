@@ -259,7 +259,8 @@ public class FrameMain extends javax.swing.JFrame {
 
     private void getFirebirdData(String orderName) {
         FirebirdDataLoader loader = new FirebirdDataLoader(orderName);
-        loader.getData();
+        FirebirdOrderEntity entity = loader.getData();
+        new FrameMonitor(entity).setVisible(true);
     }
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed

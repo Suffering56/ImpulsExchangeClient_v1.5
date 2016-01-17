@@ -42,15 +42,15 @@ public class FirebirdOrderEntity {
         this.constructionsCount = constructionsCount;
     }
 
-    public void setDelivery(int delivery) {
+    public void setDelivery(boolean delivery) {
         this.delivery = delivery;
     }
 
-    public void setMounting(int mounting) {
+    public void setMounting(boolean mounting) {
         this.mounting = mounting;
     }
 
-    public void setDismantling(int dismantling) {
+    public void setDismantling(boolean dismantling) {
         this.dismantling = dismantling;
     }
 
@@ -90,21 +90,22 @@ public class FirebirdOrderEntity {
         return constructionsCount;
     }
 
-    public int getDelivery() {
+    public boolean isDelivery() {
         return delivery;
     }
 
-    public int getMounting() {
+    public boolean isMounting() {
         return mounting;
     }
 
-    public int getDismantling() {
+    public boolean isDismantling() {
         return dismantling;
     }
 
     @Override
     public String toString() {
-        return "Entity{" + "fullOrderName=" + fullOrderName + ", invno=" + invno + ", clnum=" + clnum + ", client=" + client + ", address=" + address + ", contacts=" + contacts + ", cost=" + cost + ", master=" + master + ", constructionsCount=" + constructionsCount + ", delivery=" + delivery + ", mounting=" + mounting + ", dismantling=" + dismantling + '}';
+        return "Entity{" + "fullOrderName=" + fullOrderName + ", invno=" + invno + ", clnum=" + clnum + ", client=" + client + ", address=" + address
+                + "\r\n" + ", contacts=" + contacts + ", cost=" + cost + ", master=" + master + ", constructionsCount=" + constructionsCount + ", delivery=" + delivery + ", mounting=" + mounting + ", dismantling=" + dismantling + '}';
     }
 
     private final String fullOrderName;
@@ -116,7 +117,7 @@ public class FirebirdOrderEntity {
     private String cost = "не указано";
     private String master = "не указано";
     private int constructionsCount = 0;
-    private int delivery = 0;
-    private int mounting = 0;
-    private int dismantling = 0;
+    private boolean delivery = false;
+    private boolean mounting = false;
+    private boolean dismantling = false;
 }
