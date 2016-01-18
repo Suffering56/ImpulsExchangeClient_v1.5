@@ -42,15 +42,15 @@ public class FirebirdOrderEntity {
         this.constructionsCount = constructionsCount;
     }
 
-    public void setDelivery(boolean delivery) {
+    public void setDelivery(String delivery) {
         this.delivery = delivery;
     }
 
-    public void setMounting(boolean mounting) {
+    public void setMounting(String mounting) {
         this.mounting = mounting;
     }
 
-    public void setDismantling(boolean dismantling) {
+    public void setDismantling(String dismantling) {
         this.dismantling = dismantling;
     }
 
@@ -90,15 +90,15 @@ public class FirebirdOrderEntity {
         return constructionsCount;
     }
 
-    public boolean isDelivery() {
+    public String getDelivery() {
         return delivery;
     }
 
-    public boolean isMounting() {
+    public String getMounting() {
         return mounting;
     }
 
-    public boolean isDismantling() {
+    public String getDismantling() {
         return dismantling;
     }
 
@@ -117,7 +117,7 @@ public class FirebirdOrderEntity {
     private String cost = "не указано";
     private String master = "не указано";
     private int constructionsCount = 0;
-    private boolean delivery = false;
-    private boolean mounting = false;
-    private boolean dismantling = false;
+    private String delivery = "Нет";
+    private String mounting = "Нет";
+    private String dismantling = "Нет";
 }

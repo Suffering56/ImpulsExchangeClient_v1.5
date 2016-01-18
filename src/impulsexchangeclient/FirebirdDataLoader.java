@@ -124,13 +124,13 @@ public class FirebirdDataLoader {
             while (rs.next()) {
                 switch (rs.getInt("WRKNO")) {
                     case 4:
-                        entity.setDismantling(true);
+                        entity.setDismantling("Да");
                         break;
                     case 5:
-                        entity.setMounting(true);
+                        entity.setMounting("Да");
                         break;
                     case 6:
-                        entity.setDelivery(true);
+                        entity.setDelivery("Да");
                         break;
                 }
 
