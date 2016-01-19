@@ -25,13 +25,14 @@ public class FirebirdConnector {
         } catch (ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(null, "Ошибка при загрузке драйвера (Class.forName). \r\n"
                     + "ex.toString(): " + ex.toString(), "ConnectionFirebird.connect()", JOptionPane.ERROR_MESSAGE);
+            return null;
         }
 
         Properties properties = new Properties();
         properties.setProperty("user", "SYSDBA");
         properties.setProperty("password", "masterkey");
         properties.setProperty("charSet", "cp1251");
-        String url = "jdbc:firebirdsql:localhost/3050:E:/rab_kopiy.fdb";
+        String url = "jdbc:firebirdsql:localhost/3050:F:/rab_kopiy.fdb";
         try {
             Connection connection = DriverManager.getConnection(url, properties);
             return connection;

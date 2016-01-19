@@ -186,38 +186,37 @@ public class FrameMonitor extends javax.swing.JFrame {
     }
 
     private void readData() {
-        jTable1.setModel(table1);
-        table1.addColumn("№ заказа");
-        table1.addColumn("Клиент");
-        table1.addColumn("Адрес");
-        table1.addColumn("Контактные данные");
-        table1.addColumn("Сумма заказа");
-        table1.setRowCount(1);
-//        System.out.println("table1.getRowCount(); " + table1.getRowCount());
-//        System.out.println("table1.getColumnCount(); " + table1.getColumnCount());
-        table1.setValueAt(entity.getFullOrderName(), 0, 0);
-        table1.setValueAt(entity.getClient(), 0, 1);
-        table1.setValueAt(entity.getAddress(), 0, 2);
-        table1.setValueAt(entity.getContacts(), 0, 3);
-        table1.setValueAt(entity.getCost(), 0, 4);
+        jTable1.setModel(topTable);
+        topTable.addColumn("№ заказа");
+        topTable.addColumn("Клиент");
+        topTable.addColumn("Адрес");
+        topTable.addColumn("Контактные данные");
+        topTable.addColumn("Сумма заказа");
+        topTable.setRowCount(1);
+        topTable.setValueAt(entity.getFullOrderName(), 0, 0);
+        topTable.setValueAt(entity.getClient(), 0, 1);
+        topTable.setValueAt(entity.getAddress(), 0, 2);
+        topTable.setValueAt(entity.getContacts(), 0, 3);
+        topTable.setValueAt(entity.getCost(), 0, 4);
 
-        jTable2.setModel(table2);
-        table2.addColumn("Замерщик");
-        table2.addColumn("Кол-во конструкций");
-        table2.addColumn("Монтаж");
-        table2.addColumn("Демонтаж");
-        table2.addColumn("Доставка");
-        table2.setRowCount(1);
-        table2.setValueAt(entity.getMaster(), 0, 0);
-        table2.setValueAt(entity.getConstructionsCount(), 0, 1);
-        table2.setValueAt(entity.getMounting(), 0, 2);
-        table2.setValueAt(entity.getDismantling(), 0, 3);
-        table2.setValueAt(entity.getDelivery(), 0, 4);
+        jTable2.setModel(botTable);
+        botTable.addColumn("Замерщик");
+        botTable.addColumn("Кол-во конструкций");
+        botTable.addColumn("Монтаж");
+        botTable.addColumn("Демонтаж");
+        botTable.addColumn("Доставка");
+        botTable.setRowCount(1);
+        botTable.setValueAt(entity.getMaster(), 0, 0);
+        botTable.setValueAt(entity.getConstructionsCount(), 0, 1);
+        botTable.setValueAt(entity.getMounting(), 0, 2);
+        botTable.setValueAt(entity.getDismantling(), 0, 3);
+        botTable.setValueAt(entity.getDelivery(), 0, 4);
     }
 
+
     private final FirebirdOrderEntity entity;
-    private DefaultTableModel table1 = new DefaultTableModel();
-    private DefaultTableModel table2 = new DefaultTableModel();
+    private final DefaultTableModel topTable = new DefaultTableModel();
+    private final DefaultTableModel botTable = new DefaultTableModel();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

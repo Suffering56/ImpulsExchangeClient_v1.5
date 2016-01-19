@@ -246,8 +246,9 @@ public class FrameMain extends javax.swing.JFrame {
         Matcher m = p.matcher(fullOrderName);
         if (m.matches()) {                                                      //проверка на корректность заказа (только цифры - не менее одной)
             if (!sentOrdersList.contains(fullOrderName)) {                      //проверка на дублирование номера заказа
-                getFirebirdData(orderName);
-                sentOrdersList.addElement(fullOrderName);                       //добавить заказ в список
+                if (getFirebirdData(orderName)) {
+                    sentOrdersList.addElement(fullOrderName);                   //добавить заказ в список
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Заказ №" + fullOrderName + " уже есть в списке!");
             }
@@ -257,10 +258,14 @@ public class FrameMain extends javax.swing.JFrame {
         orderNumber.setText(null);
     }//GEN-LAST:event_addOrderBtnActionPerformed
 
-    private void getFirebirdData(String orderName) {
+    private boolean getFirebirdData(String orderName) {
         FirebirdDataLoader loader = new FirebirdDataLoader(orderName);
-        FirebirdOrderEntity entity = loader.getData();
-        new FrameMonitor(entity).setVisible(true);
+        FirebirdOrderEntity entity = loader.extractData();
+        if (entity != null) {
+            new FrameMonitor(entity).setVisible(true);
+            return true;
+        }
+        return false;
     }
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed
