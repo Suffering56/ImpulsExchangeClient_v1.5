@@ -5,24 +5,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Locale;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 public class FirebirdDataLoader {
 
-    public FirebirdDataLoader(String orderName) {
+    public FirebirdDataLoader(String orderName, DefaultListModel sentOrdersList) {
         this.orderName = orderName;
+        this.sentOrdersList = sentOrdersList;
     }
 
     public FirebirdOrderEntity extractData() {
         connection = FirebirdConnector.getInstance().connect();
         try {
             statement = connection.createStatement();
-
             if (extractGeneralData()) {             //Получаем информацию о заказе. Затем... если такой существует:
                 extractClientData();                //Получаем инфмормацию о клиенте
                 extractConstructionsData();         //Подсчет количества конструкций
                 extractAdditionalData();            //Получаем информацию о доп. работах
                 deleteAfter();                      //!!!Потом удалить вместе с методом
+            } else {
+                new FrameNewOrder(sentOrdersList).setVisible(true);
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Ошибка чтения данных. \r\n"
@@ -117,6 +120,7 @@ public class FirebirdDataLoader {
     private Connection connection;
     private Statement statement;
     private FirebirdOrderEntity entity;
+    private final DefaultListModel sentOrdersList;
 
     private void deleteAfter() throws SQLException {
         getResultSetSize("SELECT count(*) FROM CLIENTS where CLNUM = " + entity.getClnum()

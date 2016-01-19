@@ -1,5 +1,6 @@
 package impulsexchangeclient;
 
+import javax.swing.DefaultListModel;
 import javax.swing.table.DefaultTableModel;
 
 public class FrameMonitor extends javax.swing.JFrame {
@@ -96,9 +97,19 @@ public class FrameMonitor extends javax.swing.JFrame {
 
         jButton2.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         jButton2.setText("Отмена");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jButton3.setText("ОК");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -178,7 +189,17 @@ public class FrameMonitor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public FrameMonitor(FirebirdOrderEntity entity) {
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        sentOrdersList.addElement(entity.getFullOrderName());                   //добавляем заказ в список
+        this.dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    public FrameMonitor(FirebirdOrderEntity entity, DefaultListModel sentOrdersList) {
+        this.sentOrdersList = sentOrdersList;
         this.entity = entity;
         initComponents();
         setLocationRelativeTo(null);
@@ -213,8 +234,8 @@ public class FrameMonitor extends javax.swing.JFrame {
         botTable.setValueAt(entity.getDelivery(), 0, 4);
     }
 
-
     private final FirebirdOrderEntity entity;
+    private final DefaultListModel sentOrdersList;
     private final DefaultTableModel topTable = new DefaultTableModel();
     private final DefaultTableModel botTable = new DefaultTableModel();
     // Variables declaration - do not modify//GEN-BEGIN:variables

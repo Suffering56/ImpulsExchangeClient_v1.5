@@ -240,33 +240,8 @@ public class FrameMain extends javax.swing.JFrame {
     }
 
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
-        String orderName = orderNumber.getText().trim();
-        String fullOrderName = Options.getDepartmentName() + "/" + orderName;
-        Pattern p = Pattern.compile(Options.getDepartmentName() + "/\\d+");
-        Matcher m = p.matcher(fullOrderName);
-        if (m.matches()) {                                                      //проверка на корректность заказа (только цифры - не менее одной)
-            if (!sentOrdersList.contains(fullOrderName)) {                      //проверка на дублирование номера заказа
-                if (getFirebirdData(orderName)) {
-                    sentOrdersList.addElement(fullOrderName);                   //добавить заказ в список
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Заказ №" + fullOrderName + " уже есть в списке!");
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "Некорректный номер заказа!");
-        }
-        orderNumber.setText(null);
+        new FrameNewOrder(sentOrdersList).setVisible(true);
     }//GEN-LAST:event_addOrderBtnActionPerformed
-
-    private boolean getFirebirdData(String orderName) {
-        FirebirdDataLoader loader = new FirebirdDataLoader(orderName);
-        FirebirdOrderEntity entity = loader.extractData();
-        if (entity != null) {
-            new FrameMonitor(entity).setVisible(true);
-            return true;
-        }
-        return false;
-    }
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed
         if (jOrdersList.getSelectedIndex() != -1) {                             //Если заказ выбран
