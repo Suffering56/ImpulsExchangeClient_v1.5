@@ -1,6 +1,5 @@
 package impulsexchangeclient;
 
-import javax.swing.DefaultListModel;
 import javax.swing.table.DefaultTableModel;
 
 public class FrameMonitor extends javax.swing.JFrame {
@@ -36,40 +35,10 @@ public class FrameMonitor extends javax.swing.JFrame {
             }
         });
 
-        topTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"", null, null, null, null}
-            },
-            new String [] {
-                "№ Заказа", "Клиент", "Адрес", "Контактные данные", "Сумма заказа"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+        topTable.setModel(topTableModel);
         jScrollPane1.setViewportView(topTable);
 
-        botTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Замерщик", "Количество конструкций", "Доставка", "Демонтаж", "Монтаж"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+        botTable.setModel(botTableModel);
         jScrollPane2.setViewportView(botTable);
 
         laminationBox.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -202,32 +171,15 @@ public class FrameMonitor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
-        mainFrame.setEnabled(true);
-        this.dispose();
-    }//GEN-LAST:event_cancelBtnActionPerformed
-
-    private void okBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okBtnActionPerformed
-        sentOrdersModel.addElement(entity.getFullOrderName());                   //добавляем заказ в список
-        mainFrame.setEnabled(true);
-        this.dispose();
-    }//GEN-LAST:event_okBtnActionPerformed
-
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        mainFrame.setEnabled(true);
-    }//GEN-LAST:event_formWindowClosing
-
     public FrameMonitor(FrameMain mainFrame, FirebirdOrderEntity entity) {
         this.mainFrame = mainFrame;
         this.entity = entity;
-        sentOrdersModel = this.mainFrame.getSentOrdersModel();
         initComponents();
         setLocationRelativeTo(null);
         readData();
     }
 
     private void readData() {
-        topTable.setModel(topTableModel);
         topTableModel.addColumn("№ заказа");
         topTableModel.addColumn("Клиент");
         topTableModel.addColumn("Адрес");
@@ -240,7 +192,6 @@ public class FrameMonitor extends javax.swing.JFrame {
         topTableModel.setValueAt(entity.getContacts(), 0, 3);
         topTableModel.setValueAt(entity.getCost(), 0, 4);
 
-        botTable.setModel(botTableModel);
         botTableModel.addColumn("Замерщик");
         botTableModel.addColumn("Кол-во конструкций");
         botTableModel.addColumn("Монтаж");
@@ -254,12 +205,26 @@ public class FrameMonitor extends javax.swing.JFrame {
         botTableModel.setValueAt(entity.getDelivery(), 0, 4);
     }
 
-    private final FrameMain mainFrame;
-    private final DefaultListModel sentOrdersModel;
-    private final FirebirdOrderEntity entity;
+    private void okBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okBtnActionPerformed
+        mainFrame.getForExportOrdersModel().addElement(entity.getFullOrderName());   //добавляем заказ в список на экспорт
+        mainFrame.setEnabled(true);
+        this.dispose();
+    }//GEN-LAST:event_okBtnActionPerformed
 
+    private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
+        mainFrame.setEnabled(true);
+        this.dispose();
+    }//GEN-LAST:event_cancelBtnActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        mainFrame.setEnabled(true);
+    }//GEN-LAST:event_formWindowClosing
+
+    private final FrameMain mainFrame;
+    private final FirebirdOrderEntity entity;
     private final DefaultTableModel topTableModel = new DefaultTableModel();
     private final DefaultTableModel botTableModel = new DefaultTableModel();
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable botTable;
     private javax.swing.JButton cancelBtn;

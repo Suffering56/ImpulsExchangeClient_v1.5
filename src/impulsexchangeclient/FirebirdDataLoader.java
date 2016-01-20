@@ -13,7 +13,7 @@ public class FirebirdDataLoader {
     public FirebirdDataLoader(FrameMain mainFrame, String orderName) {
         this.mainFrame = mainFrame;
         this.orderName = orderName;
-        this.sentOrdersModel = this.mainFrame.getSentOrdersModel();
+        this.sentOrdersModel = this.mainFrame.getForExportOrdersModel();
     }
 
     public FirebirdOrderEntity extractData() {

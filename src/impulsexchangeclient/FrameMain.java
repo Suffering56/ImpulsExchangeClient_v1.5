@@ -1,5 +1,7 @@
 package impulsexchangeclient;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
@@ -56,7 +58,7 @@ public class FrameMain extends javax.swing.JFrame {
         jLabel2.setFocusable(false);
 
         jOrdersList.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jOrdersList.setModel(sentOrdersModel);
+        jOrdersList.setModel(forExportOrdersModel);
         jOrdersList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jOrdersList.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -196,13 +198,13 @@ public class FrameMain extends javax.swing.JFrame {
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed
         if (jOrdersList.getSelectedIndex() != -1) {
-            sentOrdersModel.remove(jOrdersList.getSelectedIndex());
+            forExportOrdersModel.remove(jOrdersList.getSelectedIndex());
         }
     }//GEN-LAST:event_removeOrderBtnActionPerformed
 
     private void toExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toExportBtnActionPerformed
-        if (!sentOrdersModel.isEmpty()) {
-            DataExportLauncher launcher = new DataExportLauncher(progressBar, sentOrdersModel);
+        if (!forExportOrdersModel.isEmpty()) {
+            DataExportLauncher launcher = new DataExportLauncher(progressBar, forExportOrdersModel);
             launcher.runExport();
         } else {
             JOptionPane.showMessageDialog(null, "Вы не добавили в список ни одного заказа!");
@@ -239,11 +241,16 @@ public class FrameMain extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_exitMenuBtnActionPerformed
 
-    public DefaultListModel getSentOrdersModel() {
-        return sentOrdersModel;
+    public DefaultListModel getForExportOrdersModel() {
+        return forExportOrdersModel;
     }
 
-    private final DefaultListModel sentOrdersModel = new DefaultListModel();
+    public List<FirebirdOrderEntity> getEntityList() {
+        return entityList;
+    }
+
+    private final DefaultListModel forExportOrdersModel = new DefaultListModel();
+    private final List <FirebirdOrderEntity> entityList = new ArrayList<>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderBtn;

@@ -9,31 +9,31 @@ public class FirebirdOrderEntity {
     }
 
     public void setClient(String client) {
-        if (client != null) {
+        if ((client != null) && (!client.trim().isEmpty())) {
             this.client = client;
         }
     }
 
     public void setAddress(String address) {
-        if (address != null) {
+        if ((address != null) && (!client.trim().isEmpty())) {
             this.address = address;
         }
     }
 
     public void setContacts(String contacts) {
-        if (contacts != null) {
+        if ((contacts != null) && (!client.trim().isEmpty())) {
             this.contacts = contacts;
         }
     }
 
     public void setCost(String cost) {
-        if (cost != null) {
+        if ((cost != null) && (!client.trim().isEmpty())) {
             this.cost = cost;
         }
     }
 
     public void setMaster(String master) {
-        if (master != null) {
+        if ((master != null) && (!client.trim().isEmpty())) {
             this.master = master;
         }
     }

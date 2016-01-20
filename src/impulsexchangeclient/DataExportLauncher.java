@@ -11,9 +11,9 @@ import org.apache.commons.net.ftp.FTPClient;
 
 public class DataExportLauncher {
 
-    public DataExportLauncher(JProgressBar progressBar, DefaultListModel sentOrdersList) {
+    public DataExportLauncher(JProgressBar progressBar, DefaultListModel forExportOrdersModel) {
         this.progressBar = progressBar;
-        this.sentOrdersList = sentOrdersList;
+        this.forExportOrdersModel = forExportOrdersModel;
         
         this.progressBar.setString(null);
         this.progressBar.setValue(0);
@@ -22,7 +22,7 @@ public class DataExportLauncher {
 
     public void runExport() {
         try {
-            dataExportThread = new DataExportThread(ftpConnect(), copyModelToList(sentOrdersList));
+            dataExportThread = new DataExportThread(ftpConnect(), copyModelToList(forExportOrdersModel));
             timer.start();
             dataExportThread.start();
         } catch (IOException ex) {
@@ -66,7 +66,7 @@ public class DataExportLauncher {
                 if (!dataExportThread.isError()) {
                     progressBar.setValue(100);
                     progressBar.setString("Завершено!");
-                    sentOrdersList.clear();
+                    forExportOrdersModel.clear();
                 } else {
                     progressBar.setValue(100);
                     progressBar.setString("Ошибка!");
@@ -77,7 +77,7 @@ public class DataExportLauncher {
     }
 
     private final JProgressBar progressBar;
-    private final DefaultListModel sentOrdersList;
+    private final DefaultListModel forExportOrdersModel;
     private DataExportThread dataExportThread;
     private Timer timer;
 }

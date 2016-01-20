@@ -111,14 +111,14 @@ public class FrameNewOrder extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         mainFrame.setEnabled(false);
-        sentOrdersModel = mainFrame.getSentOrdersModel();
+        forExportOrdersModel = mainFrame.getForExportOrdersModel();
         depLabel.setText(Options.getDepartmentName() + "/");
     }
 
     private void nextBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_nextBtnActionPerformed
         String fullOrderName = Options.getDepartmentName() + "/" + orderField.getText().trim();
         if (isValidOrder(fullOrderName)) {                                      //проверка на корректность заказа (только цифры - не менее одной)
-            if (!sentOrdersModel.contains(fullOrderName)) {                      //проверка на дублирование номера заказа
+            if (!forExportOrdersModel.contains(fullOrderName)) {                     //проверка на дублирование номера заказа
                 selectAndShowNextFrame(fullOrderName);
             } else {
                 JOptionPane.showMessageDialog(null, "Заказ №" + fullOrderName + " уже есть в списке!");
@@ -133,7 +133,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
         if (!dontSend.isSelected()) {       //отправляем заказ в отгрузку
             getFirebirdData(orderField.getText().trim());
         } else {                            //не отправляем заказ в отгрузку
-            sentOrdersModel.addElement(fullOrderName);
+            forExportOrdersModel.addElement(fullOrderName);
             mainFrame.setEnabled(true);
         }
         this.dispose();
@@ -170,7 +170,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
         return m.matches();
     }
 
-    private final DefaultListModel sentOrdersModel;
+    private final DefaultListModel forExportOrdersModel;
     private final FrameMain mainFrame;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
