@@ -9,11 +9,11 @@ import javax.swing.JOptionPane;
 
 public class FrameOptions extends javax.swing.JFrame {
 
-    public FrameOptions(JFrame parent) {
-        this.parent = parent;
+    public FrameOptions(JFrame mainFrame) {
+        this.mainFrame = mainFrame;
         initComponents();
         setLocationRelativeTo(null);
-        parent.setEnabled(false);
+        mainFrame.setEnabled(false);
 
         depNumberField.setText(Options.getDepartmentName());
         localFilePathField.setText(Options.getLocalFilePath());
@@ -231,7 +231,7 @@ public class FrameOptions extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
-        parent.setEnabled(true);
+        mainFrame.setEnabled(true);
         this.dispose();
     }//GEN-LAST:event_cancelBtnActionPerformed
 
@@ -256,7 +256,7 @@ public class FrameOptions extends javax.swing.JFrame {
         Options.setFtpPass(ftpPassField.getText());
 
         Options.setOptions();
-        parent.setEnabled(true);
+        mainFrame.setEnabled(true);
         this.dispose();
     }//GEN-LAST:event_saveBtnActionPerformed
 
@@ -270,11 +270,11 @@ public class FrameOptions extends javax.swing.JFrame {
     }//GEN-LAST:event_localFileChooseBtnActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        parent.setEnabled(true);
+        mainFrame.setEnabled(true);
     }//GEN-LAST:event_formWindowClosing
 
     private File file;
-    private final JFrame parent;
+    private final JFrame mainFrame;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelBtn;

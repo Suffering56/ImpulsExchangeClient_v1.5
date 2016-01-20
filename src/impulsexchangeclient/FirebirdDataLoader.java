@@ -10,9 +10,10 @@ import javax.swing.JOptionPane;
 
 public class FirebirdDataLoader {
 
-    public FirebirdDataLoader(String orderName, DefaultListModel sentOrdersList) {
+    public FirebirdDataLoader(FrameMain mainFrame, String orderName) {
+        this.mainFrame = mainFrame;
         this.orderName = orderName;
-        this.sentOrdersList = sentOrdersList;
+        this.sentOrdersModel = this.mainFrame.getSentOrdersModel();
     }
 
     public FirebirdOrderEntity extractData() {
@@ -26,11 +27,12 @@ public class FirebirdDataLoader {
                     extractAdditionalData();            //Получаем информацию о доп. работах
                     deleteAfter();                      //!!!Потом удалить вместе с методом
                 } else {
-                    new FrameNewOrder(sentOrdersList).setVisible(true);
+                    new FrameNewOrder(mainFrame).setVisible(true);
                 }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка чтения данных. \r\n"
+                JOptionPane.showMessageDialog(null, "НЕИЗВЕСТНАЯ ошибка чтения данных. \r\n"
                         + "ex.toString(): " + ex, "FirebirdDataLoader.extractData()", JOptionPane.ERROR_MESSAGE);
+                mainFrame.setEnabled(true); //если возникла НЕИЗВЕСТНАЯ ошибка
             } finally {
                 try {
                     if (connection != null) {
@@ -41,6 +43,8 @@ public class FirebirdDataLoader {
                             + "ex.toString(): " + ex, "FirebirdDataLoader.extractDataА()", JOptionPane.ERROR_MESSAGE);
                 }
             }
+        } else {    //если возникла ошибка при установлении соединения с БД (FirebirdConnector.connect())
+            mainFrame.setEnabled(true);
         }
         return entity;
     }
@@ -71,7 +75,6 @@ public class FirebirdDataLoader {
                 entity.setCost(String.format(Locale.US, "%.2f", rs.getDouble("IZDAMOUNT")));
                 entity.setMaster(rs.getString("ZMRNAME"));
             }
-
             return true;
         } else {
             JOptionPane.showMessageDialog(null, "Заказ № <" + Options.getDepartmentName() + "/" + orderName + "> не найден в базе данных СуперОкна!",
@@ -122,7 +125,8 @@ public class FirebirdDataLoader {
     private Connection connection;
     private Statement statement;
     private FirebirdOrderEntity entity;
-    private final DefaultListModel sentOrdersList;
+    private final FrameMain mainFrame;
+    private final DefaultListModel sentOrdersModel;
 
     private void deleteAfter() throws SQLException {
         getResultSetSize("SELECT count(*) FROM CLIENTS where CLNUM = " + entity.getClnum()

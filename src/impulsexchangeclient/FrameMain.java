@@ -191,7 +191,7 @@ public class FrameMain extends javax.swing.JFrame {
     }
 
     private void addOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderBtnActionPerformed
-        new FrameNewOrder(sentOrdersModel).setVisible(true);
+        new FrameNewOrder(this).setVisible(true);
     }//GEN-LAST:event_addOrderBtnActionPerformed
 
     private void removeOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderBtnActionPerformed
@@ -238,6 +238,10 @@ public class FrameMain extends javax.swing.JFrame {
     private void exitMenuBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuBtnActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitMenuBtnActionPerformed
+
+    public DefaultListModel getSentOrdersModel() {
+        return sentOrdersModel;
+    }
 
     private final DefaultListModel sentOrdersModel = new DefaultListModel();
 

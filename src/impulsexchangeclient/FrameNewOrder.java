@@ -1,18 +1,13 @@
 package impulsexchangeclient;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 public class FrameNewOrder extends javax.swing.JFrame {
-
-    public FrameNewOrder(DefaultListModel sentOrdersList) {
-        this.sentOrdersList = sentOrdersList;
-        initComponents();
-        setLocationRelativeTo(null);
-        depLabel.setText(Options.getDepartmentName() + "/");
-    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -27,10 +22,16 @@ public class FrameNewOrder extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Новый заказ");
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         depLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         depLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         depLabel.setText("112/");
+        depLabel.setFocusable(false);
 
         orderField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -39,6 +40,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
         });
 
         nextBtn.setText("Далее");
+        nextBtn.setFocusPainted(false);
         nextBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextBtnActionPerformed(evt);
@@ -46,6 +48,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
         });
 
         cancelBtn.setText("Отмена");
+        cancelBtn.setFocusPainted(false);
         cancelBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelBtnActionPerformed(evt);
@@ -53,6 +56,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
         });
 
         dontSend.setText("не добавлять в отгрузку");
+        dontSend.setFocusPainted(false);
         dontSend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -88,7 +92,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
                         .addGap(6, 6, 6)
                         .addComponent(depLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
                 .addComponent(dontSend, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -102,16 +106,20 @@ public class FrameNewOrder extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void nextBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextBtnActionPerformed
+    public FrameNewOrder(FrameMain mainFrame) {
+        this.mainFrame = mainFrame;
+        initComponents();
+        setLocationRelativeTo(null);
+        mainFrame.setEnabled(false);
+        sentOrdersModel = mainFrame.getSentOrdersModel();
+        depLabel.setText(Options.getDepartmentName() + "/");
+    }
+
+    private void nextBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_nextBtnActionPerformed
         String fullOrderName = Options.getDepartmentName() + "/" + orderField.getText().trim();
         if (isValidOrder(fullOrderName)) {                                      //проверка на корректность заказа (только цифры - не менее одной)
-            if (!sentOrdersList.contains(fullOrderName)) {                      //проверка на дублирование номера заказа
-                if (!dontSend.isSelected()) {                                   //отправляем заказ в отгрузку
-                    getFirebirdData(orderField.getText().trim());
-                } else {                                                        //не отправляем заказ в отгрузку
-                    sentOrdersList.addElement(fullOrderName);                   //добавляем заказ в список
-                }
-                this.dispose();
+            if (!sentOrdersModel.contains(fullOrderName)) {                      //проверка на дублирование номера заказа
+                selectAndShowNextFrame(fullOrderName);
             } else {
                 JOptionPane.showMessageDialog(null, "Заказ №" + fullOrderName + " уже есть в списке!");
             }
@@ -121,11 +129,30 @@ public class FrameNewOrder extends javax.swing.JFrame {
         orderField.setText(null);
     }//GEN-LAST:event_nextBtnActionPerformed
 
-    private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
+    private void selectAndShowNextFrame(String fullOrderName) {
+        if (!dontSend.isSelected()) {       //отправляем заказ в отгрузку
+            getFirebirdData(orderField.getText().trim());
+        } else {                            //не отправляем заказ в отгрузку
+            sentOrdersModel.addElement(fullOrderName);
+            mainFrame.setEnabled(true);
+        }
+        this.dispose();
+    }
+
+    private void getFirebirdData(String orderName) {
+        FirebirdDataLoader loader = new FirebirdDataLoader(mainFrame, orderName);
+        FirebirdOrderEntity entity = loader.extractData();
+        if (entity != null) {
+            new FrameMonitor(mainFrame, entity).setVisible(true);
+        }
+    }
+
+    private void cancelBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
+        mainFrame.setEnabled(true);
         this.dispose();
     }//GEN-LAST:event_cancelBtnActionPerformed
 
-    private void orderFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_orderFieldKeyPressed
+    private void orderFieldKeyPressed(KeyEvent evt) {//GEN-FIRST:event_orderFieldKeyPressed
         if (evt.getKeyCode() == 10) {
             nextBtn.doClick();
         } else if (evt.getKeyCode() == 27) {
@@ -133,21 +160,18 @@ public class FrameNewOrder extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_orderFieldKeyPressed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        mainFrame.setEnabled(true);
+    }//GEN-LAST:event_formWindowClosing
+
     private boolean isValidOrder(String fullOrderName) {
         Pattern p = Pattern.compile(Options.getDepartmentName() + "/\\d+");
         Matcher m = p.matcher(fullOrderName);
         return m.matches();
     }
 
-    private void getFirebirdData(String orderName) {
-        FirebirdDataLoader loader = new FirebirdDataLoader(orderName, sentOrdersList);
-        FirebirdOrderEntity entity = loader.extractData();
-        if (entity != null) {
-            new FrameMonitor(entity, sentOrdersList).setVisible(true);
-        }
-    }
-
-    private final DefaultListModel sentOrdersList;
+    private final DefaultListModel sentOrdersModel;
+    private final FrameMain mainFrame;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelBtn;
