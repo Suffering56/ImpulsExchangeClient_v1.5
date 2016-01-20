@@ -33,6 +33,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
         depLabel.setText("112/");
         depLabel.setFocusable(false);
 
+        orderField.setText("7309");
         orderField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 orderFieldKeyPressed(evt);

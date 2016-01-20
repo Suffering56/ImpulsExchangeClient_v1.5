@@ -90,7 +90,7 @@ public class FirebirdDataLoader {
             entity.setContacts(rs.getString("CLPHONE"));
         }
     }
-    
+
     private void extractAdditionalData() throws SQLException {
         ResultSet rs = statement.executeQuery("SELECT * FROM DOPWORK where INVNO = " + entity.getInvno()
                 + " AND DEPNO  = " + Options.getDepartmentName());
@@ -125,11 +125,14 @@ public class FirebirdDataLoader {
     }
 
     private int getFactor(String ordno) throws SQLException {
-        ResultSet rs = statement.executeQuery("SELECT * FROM ORDSPEC where INVNO = " + entity.getInvno()
+            ResultSet rs = statement.executeQuery("SELECT * FROM ORDSPEC where INVNO = " + entity.getInvno()
                 + " AND DEPNO  = " + Options.getDepartmentName()
                 + " AND ORDNO = " + ordno);
         while (rs.next()) {
-            
+            if (rs.getInt("RADIUS") != 0) {
+                //radius = 1;
+            }
+//            if ( $row->radius!=0 ){ $radius=1; } // проверка радиуса
         }
         return 0;
 //        function nagruz($invno,$ordno,$dn,$database) {
@@ -148,11 +151,7 @@ public class FirebirdDataLoader {
 
 //            $result = ibase_query("SELECT * FROM ORDSPEC WHERE INVNO = ".$invno." AND DEPNO  = ".$dn." AND ORDNO = ".$ordno); 	!
 //		while ($row = ibase_fetch_object($result)) {
-        
 //         // проверка комплектующих конструкции
-//                if ($row -> radius != 0) {
-//                    $radius = 1;
-//                } // проверка радиуса
 //                If(($row -> ARTNO == 3) or($row -> ARTNO == 1) or($row -> ARTNO == 1621) or($row -> ARTNO == 1620) or($row -> ARTNO == 1285) or($row -> ARTNO == 1284) or($row -> ARTNO == 197) or($row -> ARTNO == 196)
 //                
 //                    ) { 
