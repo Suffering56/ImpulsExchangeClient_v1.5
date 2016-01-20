@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Locale;
-import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 public class FirebirdDataLoader {
@@ -13,7 +12,6 @@ public class FirebirdDataLoader {
     public FirebirdDataLoader(FrameMain mainFrame, String orderName) {
         this.mainFrame = mainFrame;
         this.orderName = orderName;
-        this.sentOrdersModel = this.mainFrame.getForExportOrdersModel();
     }
 
     public FirebirdOrderEntity extractData() {
@@ -126,7 +124,6 @@ public class FirebirdDataLoader {
     private Statement statement;
     private FirebirdOrderEntity entity;
     private final FrameMain mainFrame;
-    private final DefaultListModel sentOrdersModel;
 
     private void deleteAfter() throws SQLException {
         getResultSetSize("SELECT count(*) FROM CLIENTS where CLNUM = " + entity.getClnum()

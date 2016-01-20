@@ -118,7 +118,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
     private void nextBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_nextBtnActionPerformed
         String fullOrderName = Options.getDepartmentName() + "/" + orderField.getText().trim();
         if (isValidOrder(fullOrderName)) {                                      //проверка на корректность заказа (только цифры - не менее одной)
-            if (!forExportOrdersModel.contains(fullOrderName)) {                     //проверка на дублирование номера заказа
+            if (!forExportOrdersModel.contains(fullOrderName)) {                //проверка на дублирование номера заказа
                 selectAndShowNextFrame(fullOrderName);
             } else {
                 JOptionPane.showMessageDialog(null, "Заказ №" + fullOrderName + " уже есть в списке!");

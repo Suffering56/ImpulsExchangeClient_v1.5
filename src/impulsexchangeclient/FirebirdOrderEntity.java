@@ -54,6 +54,28 @@ public class FirebirdOrderEntity {
         this.dismantling = dismantling;
     }
 
+    //=====================доп поля начало==========================
+    public void setMountingDate(String mountingDate) {
+        this.mountingDate = mountingDate;
+    }
+
+    public void setLamination(boolean lamination) {
+        this.lamination = lamination;
+    }
+
+    public void setGarbage(boolean garbage) {
+        this.garbage = garbage;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    //=====================доп поля конец==========================
+
     public String getFullOrderName() {
         return fullOrderName;
     }
@@ -102,22 +124,54 @@ public class FirebirdOrderEntity {
         return dismantling;
     }
 
+    //=====================доп поля начало==========================
+    public String getMountingDate() {
+        return mountingDate;
+    }
+
+    public boolean isLamination() {
+        return lamination;
+    }
+
+    public boolean isGarbage() {
+        return garbage;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+    //=====================доп поля конец==========================
+
     @Override
     public String toString() {
         return "Entity{" + "fullOrderName=" + fullOrderName + ", invno=" + invno + ", clnum=" + clnum + ", client=" + client + ", address=" + address
                 + "\r\n" + ", contacts=" + contacts + ", cost=" + cost + ", master=" + master + ", constructionsCount=" + constructionsCount + ", delivery=" + delivery + ", mounting=" + mounting + ", dismantling=" + dismantling + '}';
     }
 
+    //обязательные поля
     private final String fullOrderName;
     private final int invno;
     private final int clnum;
+    //изменяемые поля
     private String client = "не указано";
     private String address = "не указано";
     private String contacts = "не указано";
-    private String cost = "не указано";
-    private String master = "не указано";
+    //неизменяемые поля
     private int constructionsCount = 0;
     private String delivery = "Нет";
     private String mounting = "Нет";
     private String dismantling = "Нет";
+    private String cost = "не указано";         //не нужно  - не отображать - можно вообще удалить
+    private String master = "не указано";       //возможно тоже можно удалить
+    
+    //данные, вводимые дилерами
+    private String mountingDate = "не указано";
+    private boolean lamination = false;
+    private boolean garbage = false;
+    private String comment = "";
+    private String description = "";
 }
