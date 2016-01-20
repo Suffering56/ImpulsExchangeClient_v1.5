@@ -17,27 +17,29 @@ public class FirebirdDataLoader {
 
     public FirebirdOrderEntity extractData() {
         connection = FirebirdConnector.getInstance().connect();
-        try {
-            statement = connection.createStatement();
-            if (extractGeneralData()) {             //Получаем информацию о заказе. Затем... если такой существует:
-                extractClientData();                //Получаем инфмормацию о клиенте
-                extractConstructionsData();         //Подсчет количества конструкций
-                extractAdditionalData();            //Получаем информацию о доп. работах
-                deleteAfter();                      //!!!Потом удалить вместе с методом
-            } else {
-                new FrameNewOrder(sentOrdersList).setVisible(true);
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Ошибка чтения данных. \r\n"
-                    + "ex.toString(): " + ex, "FirebirdDataLoader.extractData()", JOptionPane.ERROR_MESSAGE);
-        } finally {
+        if (connection != null) {
             try {
-                if (connection != null) {
-                    connection.close();
+                statement = connection.createStatement();
+                if (extractGeneralData()) {             //Получаем информацию о заказе. Затем... если такой существует:
+                    extractClientData();                //Получаем инфмормацию о клиенте
+                    extractConstructionsData();         //Подсчет количества конструкций
+                    extractAdditionalData();            //Получаем информацию о доп. работах
+                    deleteAfter();                      //!!!Потом удалить вместе с методом
+                } else {
+                    new FrameNewOrder(sentOrdersList).setVisible(true);
                 }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "Ничего страшного! Ошибка вызвана методом: <connection.close()>. \r\n"
-                        + "ex.toString(): " + ex, "FirebirdDataLoader.extractDataА()", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Ошибка чтения данных. \r\n"
+                        + "ex.toString(): " + ex, "FirebirdDataLoader.extractData()", JOptionPane.ERROR_MESSAGE);
+            } finally {
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Ничего страшного! Ошибка вызвана методом: <connection.close()>. \r\n"
+                            + "ex.toString(): " + ex, "FirebirdDataLoader.extractDataА()", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
         return entity;

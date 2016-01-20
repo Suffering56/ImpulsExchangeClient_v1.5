@@ -32,7 +32,7 @@ public class FirebirdConnector {
         properties.setProperty("user", "SYSDBA");
         properties.setProperty("password", "masterkey");
         properties.setProperty("charSet", "cp1251");
-        String url = "jdbc:firebirdsql:localhost/3050:E:/rab_kopiy.fdb";
+        String url = "jdbc:firebirdsql:localhost/3050:F:/rab_kopiy.fdb";
         try {
             Connection connection = DriverManager.getConnection(url, properties);
             return connection;
