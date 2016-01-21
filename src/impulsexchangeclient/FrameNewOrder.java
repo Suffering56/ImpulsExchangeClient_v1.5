@@ -142,7 +142,7 @@ public class FrameNewOrder extends javax.swing.JFrame {
 
     private void getFirebirdData(String orderName) {
         FirebirdDataLoader loader = new FirebirdDataLoader(mainFrame, orderName);
-        FirebirdOrderEntity entity = loader.extractData();
+        OrderEntity entity = loader.extractData();
         if (entity != null) {
             new FrameMonitor(mainFrame, entity).setVisible(true);
         }

@@ -1,8 +1,8 @@
 package impulsexchangeclient;
 
-public class FirebirdOrderEntity {
+public class OrderEntity {
 
-    public FirebirdOrderEntity(String fullOrderName, int invno, int clnum) {
+    public OrderEntity(String fullOrderName, int invno, int clnum) {
         this.fullOrderName = fullOrderName;
         this.invno = invno;
         this.clnum = clnum;

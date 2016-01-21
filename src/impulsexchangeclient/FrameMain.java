@@ -245,12 +245,12 @@ public class FrameMain extends javax.swing.JFrame {
         return forExportOrdersModel;
     }
 
-    public List<FirebirdOrderEntity> getEntityList() {
+    public List<OrderEntity> getEntityList() {
         return entityList;
     }
 
     private final DefaultListModel forExportOrdersModel = new DefaultListModel();
-    private final List <FirebirdOrderEntity> entityList = new ArrayList<>();
+    private final List <OrderEntity> entityList = new ArrayList<>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderBtn;

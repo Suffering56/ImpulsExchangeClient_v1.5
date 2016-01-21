@@ -171,12 +171,13 @@ public class FrameMonitor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public FrameMonitor(FrameMain mainFrame, FirebirdOrderEntity entity) {
+    public FrameMonitor(FrameMain mainFrame, OrderEntity entity) {
         this.mainFrame = mainFrame;
         this.entity = entity;
         initComponents();
         setLocationRelativeTo(null);
         readData();
+        setTitle("Экспорт в отгрузку: " + entity.getCapacity());
     }
 
     private void readData() {
@@ -221,7 +222,7 @@ public class FrameMonitor extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private final FrameMain mainFrame;
-    private final FirebirdOrderEntity entity;
+    private final OrderEntity entity;
     private final DefaultTableModel topTableModel = new DefaultTableModel();
     private final DefaultTableModel botTableModel = new DefaultTableModel();
     
