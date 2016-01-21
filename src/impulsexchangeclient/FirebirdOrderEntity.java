@@ -74,6 +74,12 @@ public class FirebirdOrderEntity {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public void setCapacity(int capacity) {
+        if (capacity > 0) {
+            this.capacity = capacity;
+        }
+    }
     //=====================доп поля конец==========================
 
     public String getFullOrderName() {
@@ -146,6 +152,10 @@ public class FirebirdOrderEntity {
     }
     //=====================доп поля конец==========================
 
+    public int getCapacity() {
+        return capacity;
+    }
+
     @Override
     public String toString() {
         return "Entity{" + "fullOrderName=" + fullOrderName + ", invno=" + invno + ", clnum=" + clnum + ", client=" + client + ", address=" + address
@@ -167,7 +177,8 @@ public class FirebirdOrderEntity {
     private String dismantling = "Нет";
     private String cost = "не указано";         //не нужно  - не отображать - можно вообще удалить
     private String master = "не указано";       //возможно тоже можно удалить
-    
+    private int capacity = 0;                   //нагрузка заказа (в минутах)
+
     //данные, вводимые дилерами
     private String mountingDate = "не указано";
     private boolean lamination = false;
